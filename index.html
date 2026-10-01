@@ -1,0 +1,1232 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#051D4D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Acergal MC">
+<title>Acergal · Mejora continua</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#051D4D; --navy-2:#0B2A63; --navy-3:#163A7C; --borde-osc:rgba(255,255,255,.12); --texto-osc:#A9BAD3;
+  --fondo:#F2F5F9; --placa:#FFFFFF; --linea:#E3E9F1; --texto:#0A1A3D; --suave:#5A6A84; --pista:#E8EEF5;
+  --menta:#00E6A0; --cian:#00BFDB; --celeste:#01A8F6;
+  --grad:linear-gradient(90deg,#00E6A0 0%,#00BFDB 55%,#01A8F6 100%);
+  --sombra:0 1px 2px rgba(5,29,77,.05),0 10px 28px -16px rgba(5,29,77,.28);
+  --f:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --fd:'Sora','Manrope',system-ui,sans-serif;
+  --top:env(safe-area-inset-top,0px); --bot:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--fondo);color:var(--texto);font-family:var(--f);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--celeste);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px}
+
+/* Encabezado */
+.top{background:var(--navy);color:#fff;padding:calc(var(--top) + 12px) 0 12px;position:sticky;top:0;z-index:20}
+.top.solo::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--grad)}
+.top .wrap{display:flex;align-items:center;gap:12px}
+.logo{height:30px;width:auto;display:block}
+.marca{flex:1;line-height:1.15;min-width:0}
+.marca strong{display:block;font-family:var(--fd);font-size:16px;font-weight:600;letter-spacing:.14em}
+.marca span{font-size:12.5px;color:var(--texto-osc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.icono{background:transparent;border:1px solid var(--borde-osc);color:#fff;border-radius:12px;height:40px;min-width:40px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 10px}
+.icono svg{width:19px;height:19px}
+.avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--borde-osc);background:var(--navy-2);color:#fff;font-family:var(--fd);font-weight:600;font-size:15px;padding:0;overflow:hidden;display:inline-flex;align-items:center;justify-content:center}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.badge{background:#E5484D;color:#fff;font-size:11.5px;font-weight:700;border-radius:10px;padding:0 6px;line-height:18px}
+.aviso-offline{background:#FFF5DB;color:#5C4300;font-size:14px;padding:8px 18px;text-align:center}
+
+/* Pestañas */
+.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--linea);padding-bottom:var(--bot);z-index:20}
+.tabs .wrap{display:grid;grid-template-columns:repeat(4,1fr);padding:0}
+.tab{position:relative;background:none;border:0;padding:10px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;font-weight:500;color:var(--suave)}
+.tab svg{width:22px;height:22px}
+.tab[aria-current="page"]{color:var(--navy);font-weight:700}
+.tab[aria-current="page"]::before{content:"";position:absolute;top:0;left:50%;width:28px;height:3px;margin-left:-14px;border-radius:0 0 3px 3px;background:var(--grad)}
+main{padding-bottom:calc(104px + var(--bot))}
+
+/* Resumen de cartera */
+.resumen{background:var(--navy);color:#fff;padding:6px 0 20px;position:relative}
+.resumen::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--grad)}
+.resumen .total{display:flex;align-items:baseline;gap:12px;margin:4px 0 16px}
+.resumen .total b{font-family:var(--fd);font-size:52px;line-height:1;font-weight:600;letter-spacing:-.02em}
+.resumen .total span{color:var(--texto-osc);font-size:15px}
+.filtros{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.filtros::-webkit-scrollbar{display:none}
+.filtro{flex:0 0 auto;background:rgba(255,255,255,.06);border:1px solid var(--borde-osc);color:#DCE6F5;border-radius:999px;padding:7px 14px;display:flex;align-items:baseline;gap:7px;font-size:14px}
+.filtro b{font-family:var(--fd);font-size:16px;font-weight:600}
+.filtro[aria-pressed="true"]{background:#fff;color:var(--navy);border-color:#fff}
+.filtro.atr b{color:#FF8C8F}.filtro.atr[aria-pressed="true"] b{color:#C3333B}
+.filtro.pv b{color:#FFC861}.filtro.pv[aria-pressed="true"] b{color:#9A6200}
+
+/* Estados */
+.st-atr{--c:#E5484D;--ct:#C3333B} .st-pv{--c:#F0A320;--ct:#9A6200} .st-ec{--c:var(--celeste);--ct:#0372B0}
+.st-pl{--c:#7C8DA6;--ct:#4E607A} .st-pa{--c:#A3AFC0;--ct:#6B7890} .st-ok{--c:#00B37E;--ct:#00875E}
+.st-cr{--c:#E07A2E;--ct:#B05814} .st-ca{--c:#A3AFC0;--ct:#6B7890}
+
+/* Lista de proyectos */
+.lista-cab{display:flex;justify-content:space-between;align-items:center;margin:20px 2px 10px;font-size:13px;color:var(--suave)}
+.leyenda{display:flex;gap:14px;align-items:center}
+.leyenda i{display:inline-block;vertical-align:middle;margin-right:6px}
+.lg-real{width:18px;height:6px;background:var(--grad);border-radius:3px}
+.lg-esp{width:2px;height:13px;background:var(--navy);border-radius:1px}
+.tarjeta{display:block;width:100%;text-align:left;background:var(--placa);border:1px solid var(--linea);border-radius:16px;padding:15px 16px 13px;margin-bottom:10px;box-shadow:var(--sombra);transition:border-color .15s,transform .15s}
+.tarjeta:hover{border-color:#C9D5E4}
+.tarjeta:active{transform:scale(.995)}
+.t-cab{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--suave)}
+.estado{display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:12.5px;color:var(--ct,var(--c))}
+.estado::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 18%,transparent)}
+.t-nombre{font-family:var(--fd);font-weight:600;font-size:16.5px;margin:7px 0 12px;line-height:1.3;letter-spacing:-.005em}
+.barra-fila{display:flex;align-items:center;gap:14px}
+.barra{position:relative;flex:1;height:8px;background:var(--pista);border-radius:99px}
+.barra .real{position:absolute;inset:0 auto 0 0;background:var(--c,var(--celeste));border-radius:99px}
+.st-ec .barra .real,.meta-barra .barra .real{background:var(--grad)}
+.barra .esp{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--navy);margin-left:-1px;border-radius:1px}
+.pct{font-family:var(--fd);font-size:21px;font-weight:600;min-width:56px;text-align:right;line-height:1;letter-spacing:-.01em}
+.t-pie{display:flex;justify-content:space-between;margin-top:9px;font-size:13.5px;color:var(--suave)}
+.t-pie .dif{color:var(--ct,var(--suave));font-weight:600}
+.vacio{background:var(--placa);border:1px dashed #C9D5E4;border-radius:16px;padding:30px 20px;text-align:center;color:var(--suave)}
+.vacio p{margin:0 0 14px}
+
+.fab{position:fixed;right:max(18px,calc(50vw - 362px));bottom:calc(84px + var(--bot));background:var(--grad);color:var(--navy);border:0;border-radius:14px;padding:13px 18px;font-family:var(--fd);font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px;box-shadow:0 10px 26px -8px rgba(1,168,246,.6);z-index:15}
+.fab svg{width:18px;height:18px}
+
+/* Botones y formularios */
+.btn{border:1px solid #CBD5E1;background:var(--placa);border-radius:12px;padding:11px 16px;font-weight:700;font-size:15px;min-height:46px}
+.btn.pri{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.peligro{color:#C3333B;border-color:#F0C9CB}
+.btn:disabled{opacity:.55;cursor:wait}
+.ancho{width:100%}
+.acciones{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.campo{margin-bottom:16px}
+.campo label{display:block;font-size:14px;font-weight:700;margin-bottom:6px}
+.campo small{display:block;color:var(--suave);font-size:13px;margin-top:5px}
+.campo input,.campo select,.campo textarea{width:100%;border:1px solid #CBD5E1;border-radius:12px;padding:11px 13px;background:#fff;min-height:46px;transition:border-color .15s,box-shadow .15s}
+.campo input:focus,.campo select:focus,.campo textarea:focus{outline:none;border-color:var(--celeste);box-shadow:0 0 0 4px rgba(1,168,246,.16)}
+.campo textarea{min-height:88px;resize:vertical}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rango{display:flex;align-items:center;gap:14px}
+.rango input[type=range]{flex:1;accent-color:var(--celeste);min-height:auto;border:0;padding:0;box-shadow:none}
+.rango output{font-family:var(--fd);font-size:30px;font-weight:600;min-width:80px;text-align:right}
+.nota{background:#E3F8F0;color:#05573C;border-radius:12px;padding:11px 13px;font-size:14px;margin-bottom:16px}
+
+/* Panel */
+.capa{position:fixed;inset:0;background:rgba(5,18,48,.55);backdrop-filter:blur(2px);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.panel{background:var(--fondo);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:0 0 calc(22px + var(--bot))}
+@media (min-width:700px){.capa{align-items:center}.panel{border-radius:22px;max-height:88vh}}
+.panel-cab{position:sticky;top:0;background:var(--fondo);padding:18px 20px 12px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:1px solid var(--linea);z-index:2}
+.panel-cab h2{margin:0;font-family:var(--fd);font-size:19px;font-weight:600;line-height:1.3}
+.panel-cab .sub{font-size:13.5px;color:var(--suave);margin-top:3px}
+.cerrar{background:var(--placa);border:1px solid var(--linea);border-radius:50%;width:36px;height:36px;flex:0 0 36px;font-size:20px;line-height:1;color:var(--suave)}
+.panel-cuerpo{padding:16px 20px}
+@media (prefers-reduced-motion:no-preference){.panel{animation:sube .24s cubic-bezier(.2,.8,.2,1)}@keyframes sube{from{transform:translateY(28px);opacity:.3}to{transform:none;opacity:1}}}
+
+.bloque{background:var(--placa);border:1px solid var(--linea);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--sombra)}
+.bloque h3{margin:0 0 12px;font-family:var(--fd);font-size:14.5px;font-weight:600}
+.ind{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;gap:6px;margin:6px 0 14px}
+.ind div span{display:block;font-size:12.5px;color:var(--suave)}
+.ind div b{font-family:var(--fd);font-size:25px;font-weight:600;line-height:1.2}
+.ind .act b{color:#0372B0}
+.datos{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;font-size:14.5px}
+.datos span{display:block;color:var(--suave);font-size:12.5px}
+.linea-tiempo{list-style:none;margin:0;padding:0}
+.linea-tiempo li{position:relative;padding:0 0 16px 22px;border-left:2px solid var(--linea);margin-left:6px}
+.linea-tiempo li:last-child{border-left-color:transparent;padding-bottom:0}
+.linea-tiempo li::before{content:"";position:absolute;left:-7px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--placa);border:2.5px solid var(--c,var(--celeste))}
+.lt-cab{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--suave)}
+.lt-cab b{color:var(--texto);font-weight:700}
+.linea-tiempo p{margin:3px 0 0;font-size:14.5px}
+.linea-tiempo a{color:#0372B0;font-size:14px;font-weight:600}
+
+/* Métricas */
+.cab-vista{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:22px 0 14px}
+.cab-vista h1{margin:0;font-family:var(--fd);font-size:23px;font-weight:600;letter-spacing:-.01em}
+.cab-vista input,.cab-vista select{border:1px solid #CBD5E1;border-radius:12px;padding:8px 12px;background:#fff;min-height:42px}
+.heroe{position:relative;overflow:hidden;background:var(--navy);color:#fff;border-radius:22px;padding:22px 22px 18px;margin-bottom:12px}
+.heroe .marca-agua{position:absolute;right:-28px;bottom:-34px;width:190px;opacity:.09;pointer-events:none}
+.heroe .n{font-family:var(--fd);font-size:72px;font-weight:600;line-height:1;letter-spacing:-.03em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block}
+.heroe .n.vacia{background:none;color:#5E7396}
+.heroe p{margin:8px 0 0;color:#C6D3E6;max-width:440px;position:relative}
+.heroe .anual{position:relative;margin-top:14px;padding-top:14px;border-top:1px solid var(--borde-osc);font-size:14.5px;color:#E3EAF5}
+.cifras{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.cifra{background:var(--placa);border:1px solid var(--linea);border-radius:14px;padding:12px 12px 10px;box-shadow:var(--sombra)}
+.cifra b{display:block;font-family:var(--fd);font-size:24px;font-weight:600;line-height:1.15}
+.cifra span{font-size:12.5px;color:var(--suave);line-height:1.3;display:block;margin-top:2px}
+.cifra.mal b{color:#C3333B}
+.grafico svg{width:100%;height:auto;display:block}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+table.t th{text-align:left;font-weight:700;color:var(--suave);font-size:12px;white-space:nowrap;padding:6px 4px;border-bottom:1px solid var(--linea)}
+table.t td{padding:9px 4px;border-bottom:1px solid #EEF2F7}
+table.t tr:last-child td{border-bottom:0}
+table.t td.num,table.t th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tabla-scroll{overflow-x:auto}
+
+/* Historial */
+.seg{display:flex;background:#E6ECF4;border-radius:12px;padding:4px;gap:4px;margin-bottom:10px;overflow-x:auto}
+.seg button{flex:1 0 auto;border:0;background:none;border-radius:9px;padding:8px 10px;font-size:14px;font-weight:600;color:var(--suave)}
+.seg button[aria-pressed="true"]{background:var(--placa);color:var(--navy);box-shadow:0 1px 3px rgba(5,29,77,.14)}
+.fila-filtros{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.fila-filtros select{border:1px solid #CBD5E1;border-radius:12px;padding:8px 12px;background:#fff;min-height:44px;width:100%}
+.resumen-h{font-size:14.5px;margin:0 0 12px;color:var(--suave)}
+.resumen-h b{color:var(--texto)}
+.cerrado{display:block;width:100%;text-align:left;background:var(--placa);border:1px solid var(--linea);border-radius:16px;padding:14px 16px;margin-bottom:8px;box-shadow:var(--sombra)}
+.cerrado .c1{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.cerrado h3{margin:0;font-family:var(--fd);font-size:15.5px;font-weight:600;line-height:1.35}
+.desv{flex:0 0 auto;font-size:12.5px;font-weight:700;padding:4px 9px;border-radius:999px;background:color-mix(in srgb,var(--c) 13%,#fff);color:var(--ct,var(--c))}
+.cerrado .c2{font-size:13.5px;color:var(--suave);margin-top:7px;display:flex;flex-wrap:wrap;gap:4px 14px}
+
+/* Acceso */
+.acceso{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(var(--top) + 32px) 24px calc(var(--bot) + 28px);background:radial-gradient(60% 45% at 25% 18%,rgba(0,230,160,.16),transparent 70%),radial-gradient(55% 40% at 85% 85%,rgba(1,168,246,.18),transparent 70%),var(--navy);color:#fff;text-align:center}
+.acceso .logo-grande{width:150px;height:auto;margin-bottom:30px}
+.acceso h1{font-family:var(--fd);font-size:26px;font-weight:600;margin:0 0 8px;letter-spacing:-.01em}
+.acceso .lema{color:var(--texto-osc);margin:0 0 30px;max-width:300px}
+.g-boton{min-height:44px;display:flex;justify-content:center}
+.acceso .dominio{color:var(--texto-osc);font-size:13.5px;margin:16px 0 0}
+.acceso .dominio b{color:#fff;font-weight:600}
+.acceso .error{background:rgba(229,72,77,.14);border:1px solid rgba(229,72,77,.4);color:#FFD5D7;border-radius:12px;padding:10px 14px;font-size:14px;max-width:340px;margin:0 0 20px}
+.acceso .nota-acceso{color:var(--texto-osc);font-size:14px;max-width:320px;margin:0 0 18px}
+.acceso .btn.claro{background:#fff;color:var(--navy);border-color:#fff;min-width:240px}
+.pie-acceso{position:absolute;bottom:calc(var(--bot) + 18px);left:0;right:0;font-size:12px;color:#6F84A8}
+.cargando-logo{width:72px;opacity:.9}
+@media (prefers-reduced-motion:no-preference){.cargando-logo{animation:late 1.4s ease-in-out infinite}@keyframes late{50%{opacity:.4;transform:scale(.96)}}}
+.error{color:#C3333B;font-size:14px;margin:0 0 12px}
+
+.toast{position:fixed;left:50%;bottom:calc(150px + var(--bot));transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 18px;border-radius:12px;font-size:14.5px;font-weight:600;z-index:60;max-width:90vw;box-shadow:0 12px 30px -10px rgba(5,29,77,.5)}
+.cargando{padding:40px 0;text-align:center;color:var(--suave)}
+
+/* Archivo de respaldo */
+.archivo{display:block;border:1.5px dashed #9FB6D0;background:#F7FAFD;border-radius:14px;padding:16px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.archivo:hover{border-color:var(--celeste);background:#F0F8FE}
+.archivo input{position:absolute;opacity:0;width:1px;height:1px}
+.archivo:focus-within{outline:3px solid var(--celeste);outline-offset:2px}
+.archivo b{display:block;font-family:var(--fd);font-weight:600;color:var(--navy);font-size:15px}
+.archivo small{display:block;color:var(--suave);font-size:13px;margin-top:4px}
+.archivo.lleno{border-style:solid;border-color:#00B37E;background:#EEFBF5}
+.archivo.lleno b{color:#00875E}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:inherit}
+a.btn.pri{color:#fff}
+.chip-resp{color:#00875E;font-weight:600}
+
+/* Navegación de escritorio (oculta en celular) */
+.nav-esc,.res-der,.btn-presentar{display:none}
+.grid-tarjetas{display:block}
+
+@media (min-width:1024px){
+  .wrap{max-width:1240px;padding:0 32px}
+  .tabs{display:none}
+  main{padding-bottom:56px}
+  .top{padding:14px 0}
+  .top .wrap{gap:16px}
+  .marca{flex:0 0 auto;margin-right:20px}
+  .nav-esc{display:flex;gap:4px;flex:1}
+  .tab-esc{position:relative;background:none;border:0;color:#B9C8DE;font-weight:600;font-size:14.5px;padding:10px 14px;border-radius:10px;display:inline-flex;align-items:center;gap:8px}
+  .tab-esc svg{width:18px;height:18px}
+  .tab-esc:hover{color:#fff;background:rgba(255,255,255,.06)}
+  .tab-esc[aria-current="page"]{color:#fff}
+  .tab-esc[aria-current="page"]::after{content:"";position:absolute;left:14px;right:14px;bottom:-15px;height:3px;border-radius:3px 3px 0 0;background:var(--grad)}
+  .top.solo::after{display:none}
+  .top{border-bottom:1px solid rgba(255,255,255,.06)}
+  .btn-presentar{display:inline-flex}
+
+  .resumen{padding:28px 0 30px}
+  .filtros{flex-wrap:wrap;overflow:visible}
+  .res-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:40px;align-items:end}
+  .resumen .total{margin-top:0}
+  .resumen .total b{font-size:64px}
+  .res-der{display:grid;grid-template-columns:repeat(3,auto);gap:0}
+  .kpi-esc{padding:0 28px;border-left:1px solid var(--borde-osc);min-width:150px}
+  .kpi-esc b{display:block;font-family:var(--fd);font-size:40px;font-weight:600;line-height:1.05;letter-spacing:-.02em}
+  .kpi-esc b.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .kpi-esc b.rojo{color:#FF8C8F}
+  .kpi-esc span{display:block;color:var(--texto-osc);font-size:13px;margin-top:4px}
+
+  .grid-tarjetas{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+  .grid-tarjetas .tarjeta,.grid-tarjetas .cerrado{margin-bottom:0}
+  .lista-cab{margin-top:26px}
+  .fab{right:max(32px,calc(50vw - 588px));bottom:32px}
+
+  .cab-vista{margin:30px 0 18px}
+  .cab-vista h1{font-size:28px}
+  .met-a{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:14px;margin-bottom:14px}
+  .met-a .heroe{margin:0;display:flex;flex-direction:column;justify-content:center;padding:30px 30px 24px}
+  .met-a .heroe .n{font-size:96px}
+  .met-a .cifras{margin:0;grid-template-rows:1fr 1fr;gap:14px}
+  .met-a .cifra{padding:18px 18px 14px;display:flex;flex-direction:column;justify-content:center}
+  .met-a .cifra b{font-size:34px}
+  .met-a .cifra span{font-size:13.5px}
+  .met-b{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:14px;align-items:start}
+  .met-b .bloque{margin-bottom:14px}
+  .grafico svg{max-height:300px}
+
+  .hist-filtros{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:12px;align-items:center;margin-bottom:6px}
+  .hist-filtros .seg,.hist-filtros .fila-filtros{margin-bottom:0}
+
+  .panel{max-width:720px}
+  .toast{bottom:40px}
+}
+
+/* Modo presentación: pantalla completa para reuniones */
+body.presentando #bAlertas,body.presentando #bAjustes,body.presentando .fab,body.presentando .aviso-offline{display:none!important}
+body.presentando .wrap{max-width:1480px}
+body.presentando .tab-esc[data-vista="registrar"]{display:none}
+@media (min-width:1024px){ body.presentando main{zoom:1.12} }
+@media (min-width:1600px){ body.presentando main{zoom:1.25} }
+.pista-presentar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:rgba(5,29,77,.88);color:#DCE6F5;font-size:13.5px;padding:9px 16px;border-radius:999px;z-index:50;pointer-events:none;transition:opacity .6s}
+.pista-presentar kbd{font-family:var(--f);font-weight:700;background:rgba(255,255,255,.14);border-radius:5px;padding:1px 6px;margin:0 2px}
+</style>
+</head>
+<body>
+<div id="raiz"></div>
+<div id="capa" class="capa" hidden><div class="panel" role="dialog" aria-modal="true" id="panel"></div></div>
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script>
+/* ============================================================ CONFIGURACIÓN
+   Pega aquí la URL de tu implementación de Apps Script (termina en /exec).
+   El dominio corporativo y el ID de cliente de Google se leen de la hoja CONFIG. */
+const CONFIG = { API_URL: '' };
+
+/* ============================================================ ESTADO */
+const LS = { cred: 'mc_cred', cache: 'mc_cache', demo: 'mc_demo', auth: 'mc_auth' };
+const enGAS = typeof google !== 'undefined' && google.script && google.script.run;
+const S = {
+  cred: localStorage.getItem(LS.cred) || '', claims: null,
+  auth: JSON.parse(localStorage.getItem(LS.auth) || 'null'),
+  demo: localStorage.getItem(LS.demo) === '1',
+  data: null, vista: 'proyectos', filtro: 'todos', mes: null, offline: false,
+  hist: { anio: '', res: 'todos', area: '' }
+};
+const ACTIVOS = ['Planificado', 'En curso', 'Por vencer', 'Atrasado'];
+const ORDEN = { 'Atrasado': 0, 'Por vencer': 1, 'En curso': 2, 'Planificado': 3, 'En pausa': 4 };
+const CLASE = { 'Atrasado': 'atr', 'Por vencer': 'pv', 'En curso': 'ec', 'Planificado': 'pl', 'En pausa': 'pa',
+  'Completado a tiempo': 'ok', 'Completado con retraso': 'cr', 'Cancelado': 'ca' };
+
+/* ============================================================ FECHAS Y FORMATO */
+const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const MES_L = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const hoyD = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
+const pd = s => { if (!s) return null; if (s instanceof Date) return new Date(s.getFullYear(), s.getMonth(), s.getDate());
+  const [y, m, d] = String(s).slice(0, 10).split('-').map(Number); return new Date(y, m - 1, d); };
+const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const addD = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const dias = (a, b) => Math.round((pd(b) - pd(a)) / 864e5);
+const mesDe = s => s ? String(s).slice(0, 7) : '';
+const fCorta = s => { const d = pd(s); if (!d) return '—'; return `${d.getDate()} ${MES[d.getMonth()]}` + (d.getFullYear() !== hoyD().getFullYear() ? ` ${d.getFullYear()}` : ''); };
+const fLarga = s => { const d = pd(s); return d ? `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}` : '—'; };
+const nomMes = m => { const [y, n] = m.split('-').map(Number); return `${MES_L[n - 1]} ${y}`; };
+const num = v => (v === '' || v === null || v === undefined || isNaN(Number(v))) ? '—' : Number(v).toLocaleString('es-BO', { maximumFractionDigits: 2 });
+const pct = v => v === null || v === undefined ? '—' : Math.round(v * 100) + '%';
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const plural = (n, s, p) => `${n} ${n === 1 ? s : (p || s + 's')}`;
+
+/* ============================================================ LÓGICA DE NEGOCIO */
+function calcEstado(p) {
+  const hoy = hoyD(), aviso = S.data ? S.data.diasAviso : 3;
+  if (p.Estado === 'Cancelado' || p.Estado === 'En pausa') return p.Estado;
+  if (p.FechaCierre) return dias(p.FechaFin, p.FechaCierre) <= 0 ? 'Completado a tiempo' : 'Completado con retraso';
+  if (hoy < pd(p.FechaInicio)) return 'Planificado';
+  const r = dias(hoy, p.FechaFin);
+  if (r < 0) return 'Atrasado';
+  if (r <= aviso) return 'Por vencer';
+  return 'En curso';
+}
+const esperado = p => clamp(dias(p.FechaInicio, hoyD()) / Math.max(1, dias(p.FechaInicio, p.FechaFin)));
+const logro = p => { const b = +p.LineaBase, m = +p.Meta, a = +p.ValorActual; return m === b ? 0 : Math.max(0, (a - b) / (m - b)); };
+const sinRegistro = p => ['En curso', 'Por vencer', 'Atrasado'].includes(p.Estado) && p.UltimoRegistro && dias(p.UltimoRegistro, hoyD()) >= S.data.diasSinRegistro;
+
+function metricasMes(mes) {
+  const ps = S.data.proyectos;
+  const cerr = ps.filter(p => p.FechaCierre && mesDe(p.FechaCierre) === mes && p.Estado !== 'Cancelado');
+  const aT = cerr.filter(p => dias(p.FechaFin, p.FechaCierre) <= 0).length;
+  const desv = cerr.length ? Math.round(cerr.reduce((s, p) => s + dias(p.FechaFin, p.FechaCierre), 0) / cerr.length) : null;
+  return {
+    cerr, aT, conRetraso: cerr.length - aT, cumpl: cerr.length ? aT / cerr.length : null, desv,
+    nuevos: ps.filter(p => mesDe(p.FechaInicio) === mes).length,
+    registros: (S.data.registrosPorMes || {})[mes] || 0,
+    logroProm: cerr.length ? cerr.reduce((s, p) => s + Math.min(1.2, logro(p)), 0) / cerr.length : null
+  };
+}
+
+/* ============================================================ CONEXIÓN */
+async function api(action, data = {}) {
+  if (S.demo) return Demo.api(action, data);
+  if (enGAS) return new Promise((res, rej) => google.script.run
+    .withSuccessHandler(r => r && r.ok ? res(r.data) : rej(Object.assign(new Error(r ? r.error : 'Sin respuesta'), { code: r && r.code, motivo: r && r.motivo })))
+    .withFailureHandler(rej).api({ action, data }));
+  if (!sesionValida(120) && !(await renovarSesion())) {
+    throw Object.assign(new Error('Tu sesión expiró. Vuelve a ingresar.'), { code: 401, motivo: 'SESION_EXPIRADA' });
+  }
+  const r = await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ idToken: S.cred, action, data }), redirect: 'follow' });
+  const j = await r.json();
+  if (!j.ok) throw Object.assign(new Error(j.error), { code: j.code, motivo: j.motivo });
+  return j.data;
+}
+
+/* ============================================================ INICIO DE SESIÓN CON GOOGLE */
+function leerJWT(t) {
+  try {
+    let p = t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    p += '='.repeat((4 - p.length % 4) % 4);
+    return JSON.parse(decodeURIComponent(atob(p).split('').map(c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0')).join('')));
+  } catch (e) { return null; }
+}
+function sesionValida(margen = 60) {
+  if (!S.claims && S.cred) S.claims = leerJWT(S.cred);
+  return !!(S.claims && S.claims.exp * 1000 > Date.now() + margen * 1000);
+}
+let gisCarga = null, gisIniciado = false, resolverRenovacion = null;
+function cargarGIS() {
+  return gisCarga || (gisCarga = new Promise((res, rej) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://accounts.google.com/gsi/client'; sc.async = true; sc.onload = res;
+    sc.onerror = () => { gisCarga = null; rej(new Error('No se pudo cargar el inicio de sesión de Google. Revisa tu conexión.')); };
+    document.head.appendChild(sc);
+  }));
+}
+async function iniciarGoogle() {
+  await cargarGIS();
+  if (gisIniciado) return;
+  google.accounts.id.initialize({
+    client_id: S.auth.clientId, callback: alRecibirCredencial, auto_select: true, hd: S.auth.dominio,
+    itp_support: true, use_fedcm_for_prompt: true, cancel_on_tap_outside: false, context: 'signin'
+  });
+  gisIniciado = true;
+}
+function alRecibirCredencial(resp) {
+  const c = leerJWT(resp.credential);
+  if (!c) return pintarAcceso('No se pudo leer la credencial de Google.');
+  if (String(c.hd || '').toLowerCase() !== S.auth.dominio) {
+    try { google.accounts.id.disableAutoSelect(); } catch (e) {}
+    if (resolverRenovacion) { const r = resolverRenovacion; resolverRenovacion = null; r(false); }
+    return pintarAcceso(`${c.email} no es una cuenta corporativa. Ingresa con tu correo @${S.auth.dominio}.`);
+  }
+  S.cred = resp.credential; S.claims = c; localStorage.setItem(LS.cred, resp.credential);
+  if (resolverRenovacion) { const r = resolverRenovacion; resolverRenovacion = null; r(true); return; }
+  cargar();
+}
+function renovarSesion() {
+  return new Promise(async res => {
+    try { await iniciarGoogle(); } catch (e) { return res(false); }
+    resolverRenovacion = res;
+    google.accounts.id.prompt();
+    setTimeout(() => { if (resolverRenovacion === res) { resolverRenovacion = null; res(false); } }, 12000);
+  });
+}
+async function obtenerAuth() {
+  const r = await fetch(CONFIG.API_URL + '?ping=1', { redirect: 'follow' });
+  const j = await r.json();
+  S.auth = { clientId: j.clientId || '', dominio: String(j.dominio || '').toLowerCase(), empresa: j.empresa || 'Acergal' };
+  localStorage.setItem(LS.auth, JSON.stringify(S.auth));
+}
+
+function procesar(d) {
+  S.data = d;
+  d.proyectos.forEach(p => { p.Estado = calcEstado(p); });
+  if (!S.mes) S.mes = mesDe(iso(hoyD()));
+}
+
+async function cargar() {
+  pintarCargando();
+  try {
+    const d = await api('init');
+    procesar(d); S.offline = false;
+    if (!S.demo) localStorage.setItem(LS.cache, JSON.stringify(d));
+  } catch (e) {
+    if (e.code === 401) {
+      if (e.motivo !== 'SESION_EXPIRADA') salir();
+      return pintarAcceso(e.message);
+    }
+    const c = !S.demo && localStorage.getItem(LS.cache);
+    if (c) { procesar(JSON.parse(c)); S.offline = true; }
+    else return pintarAcceso('No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.');
+  }
+  render();
+}
+
+function actualizarProyecto(p) {
+  p.Estado = calcEstado(p);
+  const i = S.data.proyectos.findIndex(x => x.ID === p.ID);
+  if (i > -1) S.data.proyectos[i] = p; else S.data.proyectos.push(p);
+}
+
+function salir() {
+  [LS.cred, LS.demo, LS.cache].forEach(k => localStorage.removeItem(k));
+  S.cred = ''; S.claims = null; S.demo = false; S.data = null;
+  try { google.accounts.id.disableAutoSelect(); } catch (e) {}
+}
+function usuarioActual() {
+  if (S.demo) return { nombre: 'Usuario de demostración', email: 'demo@acergal.com' };
+  const c = S.claims || {};
+  return { nombre: c.name || '', email: c.email || (S.data && S.data.usuario) || '', foto: c.picture || '' };
+}
+
+/* ============================================================ ICONOS */
+const I = {
+  lista: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+  metricas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+  historial: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>',
+  registrar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  campana: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>',
+  ajustes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>',
+  mas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  presentar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M10 7.5v5l4-2.5z"/></svg>',
+  salirPres: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/></svg>'
+};
+
+/* ============================================================ ESTRUCTURA */
+const VISTAS = [['proyectos', 'Proyectos', I.lista], ['registrar', 'Registrar', I.registrar], ['metricas', 'Métricas', I.metricas], ['historial', 'Historial', I.historial]];
+function render() {
+  const al = alertas();
+  document.getElementById('raiz').innerHTML = `
+    <header class="top ${S.vista === 'proyectos' ? '' : 'solo'}"><div class="wrap">
+      <img class="logo" src="icons/logo-mark.png" alt="" onerror="this.remove()">
+      <div class="marca"><strong>${esc((S.data.empresa || 'Acergal').toUpperCase())}</strong><span>Mejora continua</span></div>
+      <nav class="nav-esc" aria-label="Secciones">
+        ${VISTAS.map(([k, t, ic]) => `<button class="tab-esc" data-vista="${k}" ${S.vista === k ? 'aria-current="page"' : ''}>${ic}${t}</button>`).join('')}
+      </nav>
+      <button class="icono btn-presentar" id="bPresentar" aria-label="${presentando() ? 'Salir del modo presentación' : 'Modo presentación'}">${presentando() ? I.salirPres + 'Salir' : I.presentar + 'Presentar'}</button>
+      <button class="icono" id="bAlertas" aria-label="Avisos: ${al.total}">${I.campana}${al.total ? `<span class="badge">${al.total}</span>` : ''}</button>
+      <button class="avatar" id="bAjustes" aria-label="Cuenta y ajustes">${avatar()}</button>
+    </div></header>
+    ${S.offline ? '<div class="aviso-offline">Sin conexión: estás viendo los últimos datos guardados. Para registrar, conéctate.</div>' : ''}
+    <main id="vista"></main>
+    <nav class="tabs" aria-label="Secciones"><div class="wrap">
+      ${VISTAS.map(([k, t, ic]) => `<button class="tab" data-vista="${k}" ${S.vista === k ? 'aria-current="page"' : ''}>${ic}${t}</button>`).join('')}
+    </div></nav>`;
+  document.querySelectorAll('.tab, .tab-esc').forEach(b => b.onclick = () => {
+    if (b.dataset.vista === 'registrar') return formAvance();
+    irA(b.dataset.vista);
+  });
+  document.getElementById('bPresentar').onclick = alternarPresentacion;
+  document.getElementById('bAlertas').onclick = panelAlertas;
+  document.getElementById('bAjustes').onclick = panelAjustes;
+  ({ proyectos: vProyectos, metricas: vMetricas, historial: vHistorial })[S.vista]();
+}
+
+function irA(v) { S.vista = v; render(); window.scrollTo(0, 0); }
+
+/* ============================================================ MODO PRESENTACIÓN */
+const RECORRIDO = ['proyectos', 'metricas', 'historial'];
+const presentando = () => document.body.classList.contains('presentando');
+function alternarPresentacion() {
+  if (presentando()) {
+    document.body.classList.remove('presentando');
+    const pista = document.querySelector('.pista-presentar'); if (pista) pista.style.opacity = '0';
+    if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+  } else {
+    document.body.classList.add('presentando');
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    mostrarPista();
+  }
+  render();
+}
+function mostrarPista() {
+  let p = document.querySelector('.pista-presentar');
+  if (!p) { p = document.createElement('div'); p.className = 'pista-presentar'; document.body.appendChild(p); }
+  p.innerHTML = 'Usa <kbd>←</kbd> <kbd>→</kbd> para cambiar de vista y <kbd>Esc</kbd> para salir';
+  p.style.opacity = '1';
+  clearTimeout(mostrarPista._t); mostrarPista._t = setTimeout(() => { p.style.opacity = '0'; }, 4000);
+}
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement && presentando()) {
+    document.body.classList.remove('presentando');
+    const pista = document.querySelector('.pista-presentar'); if (pista) pista.style.opacity = '0';
+    if (S.data) render();
+  }
+});
+document.addEventListener('keydown', e => {
+  if (!presentando() || !S.data || !document.getElementById('capa').hidden) return;
+  if (e.target.matches && e.target.matches('input,select,textarea')) return;
+  const i = RECORRIDO.indexOf(S.vista);
+  if (e.key === 'ArrowRight') { e.preventDefault(); irA(RECORRIDO[(i + 1) % RECORRIDO.length]); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); irA(RECORRIDO[(i - 1 + RECORRIDO.length) % RECORRIDO.length]); }
+  if (e.key === 'Escape' && !document.fullscreenElement) alternarPresentacion();
+}, true);   // en captura: si hay un panel abierto, Esc solo cierra el panel
+
+function pintarCargando() {
+  document.getElementById('raiz').innerHTML = '<div class="acceso"><img class="cargando-logo" src="icons/logo-mark.png" alt=""><p class="lema" style="margin-top:18px">Cargando proyectos…</p></div>';
+}
+function avatar() {
+  const u = usuarioActual();
+  if (u.foto) return `<img src="${esc(u.foto)}" alt="" referrerpolicy="no-referrer">`;
+  return esc((u.nombre || u.email || '?').trim().charAt(0).toUpperCase());
+}
+
+/* ============================================================ VISTA: PROYECTOS */
+function barra(p) {
+  const e = esperado(p);
+  const muestraEsp = ['En curso', 'Por vencer', 'Atrasado'].includes(p.Estado);
+  return `<div class="barra" role="img" aria-label="Avance ${p.Avance}%, esperado hoy ${Math.round(e * 100)}%">
+    <span class="real" style="width:${clamp(p.Avance / 100) * 100}%"></span>
+    ${muestraEsp ? `<span class="esp" style="left:${e * 100}%" title="Esperado hoy: ${Math.round(e * 100)}%"></span>` : ''}
+  </div>`;
+}
+
+function piePlazo(p) {
+  const hoy = hoyD();
+  if (p.Estado === 'Planificado') return [`Inicia el ${fCorta(p.FechaInicio)}`, `${plural(dias(hoy, p.FechaInicio), 'día')}`];
+  if (p.Estado === 'En pausa') return [`${dias(hoy, p.FechaFin) < 0 ? 'Venció' : 'Vence'} el ${fCorta(p.FechaFin)}`, 'En pausa'];
+  const r = dias(hoy, p.FechaFin);
+  if (r < 0) return [`Venció el ${fCorta(p.FechaFin)}`, `${plural(-r, 'día')} de atraso`];
+  if (r === 0) return ['Vence hoy', ''];
+  return [`Vence el ${fCorta(p.FechaFin)}`, `faltan ${plural(r, 'día')}`];
+}
+
+function tarjeta(p) {
+  const [izq, der] = piePlazo(p);
+  return `<button class="tarjeta st-${CLASE[p.Estado]}" data-id="${esc(p.ID)}">
+    <div class="t-cab"><span class="estado">${esc(p.Estado)}</span><span>${esc(p.Area)}</span></div>
+    <div class="t-nombre">${esc(p.Proyecto)}</div>
+    <div class="barra-fila">${barra(p)}<span class="pct">${p.Avance}%</span></div>
+    <div class="t-pie"><span>${izq}</span><span class="dif">${der}</span></div>
+  </button>`;
+}
+
+function vProyectos() {
+  const act = S.data.proyectos.filter(p => p.Estado in ORDEN).sort((a, b) => ORDEN[a.Estado] - ORDEN[b.Estado] || dias(b.FechaFin, a.FechaFin));
+  const n = k => act.filter(p => p.Estado === k).length;
+  const filtros = [['todos', 'Todos', act.length, ''], ['Atrasado', 'Atrasados', n('Atrasado'), 'atr'], ['Por vencer', 'Por vencer', n('Por vencer'), 'pv'],
+    ['En curso', 'En curso', n('En curso'), ''], ['Planificado', 'Planificados', n('Planificado'), ''], ['En pausa', 'En pausa', n('En pausa'), '']]
+    .filter(f => f[0] === 'todos' || f[2] > 0);
+  if (!filtros.some(f => f[0] === S.filtro)) S.filtro = 'todos';
+  const lista = S.filtro === 'todos' ? act : act.filter(p => p.Estado === S.filtro);
+  const enMarcha = act.filter(p => p.Estado !== 'En pausa' && p.Estado !== 'Planificado');
+  const prom = enMarcha.length ? Math.round(enMarcha.reduce((s, p) => s + p.Avance, 0) / enMarcha.length) : 0;
+  const anio = String(hoyD().getFullYear());
+  const cerrAnio = S.data.proyectos.filter(p => p.FechaCierre && p.Estado !== 'Cancelado' && p.FechaCierre.startsWith(anio));
+  const okAnio = cerrAnio.filter(p => p.Estado === 'Completado a tiempo').length;
+
+  document.getElementById('vista').innerHTML = `
+    <section class="resumen"><div class="wrap res-grid"><div class="res-izq">
+      <div class="total"><b>${act.length}</b><span>${act.length === 1 ? 'proyecto abierto' : 'proyectos abiertos'}${enMarcha.length ? `, avance promedio ${prom}%` : ''}</span></div>
+      <div class="filtros" role="group" aria-label="Filtrar por estado">
+        ${filtros.map(([k, t, c, cl]) => `<button class="filtro ${cl}" data-f="${k}" aria-pressed="${S.filtro === k}"><b>${c}</b>${t}</button>`).join('')}
+      </div></div>
+      <div class="res-der">
+        <div class="kpi-esc"><b class="${cerrAnio.length ? 'grad' : ''}">${cerrAnio.length ? pct(okAnio / cerrAnio.length) : '—'}</b><span>cumplimiento de fechas ${anio}</span></div>
+        <div class="kpi-esc"><b>${cerrAnio.length}</b><span>proyectos cerrados ${anio}</span></div>
+        <div class="kpi-esc"><b class="${n('Atrasado') ? 'rojo' : ''}">${n('Atrasado')}</b><span>atrasados hoy</span></div>
+      </div>
+    </div></section>
+    <div class="wrap">
+      ${act.length ? `<div class="lista-cab"><span>${S.filtro === 'todos' ? 'Por urgencia' : esc(S.filtro)}</span>
+        <span class="leyenda"><span><i class="lg-real"></i>avance real</span><span><i class="lg-esp"></i>esperado hoy</span></span></div>` : ''}
+      ${lista.length ? `<div class="grid-tarjetas">${lista.map(tarjeta).join('')}</div>` : `<div class="vacio" style="margin-top:18px"><p>No tienes proyectos abiertos.</p><button class="btn pri" id="bPrimero">Registrar un proyecto</button></div>`}
+    </div>
+    <button class="fab" id="bNuevo">${I.mas}Nuevo proyecto</button>`;
+  document.querySelectorAll('.filtro').forEach(b => b.onclick = () => { S.filtro = b.dataset.f; vProyectos(); });
+  document.querySelectorAll('.tarjeta').forEach(b => b.onclick = () => detalle(b.dataset.id));
+  document.getElementById('bNuevo').onclick = () => formProyecto();
+  const bp = document.getElementById('bPrimero'); if (bp) bp.onclick = () => formProyecto();
+}
+
+/* ============================================================ PANEL */
+let alCerrarPanel = null;
+function abrirPanel(titulo, sub, cuerpo) {
+  const panel = document.getElementById('panel');
+  panel.innerHTML = `<div class="panel-cab"><div><h2>${titulo}</h2>${sub ? `<div class="sub">${sub}</div>` : ''}</div>
+    <button class="cerrar" aria-label="Cerrar">×</button></div><div class="panel-cuerpo">${cuerpo}</div>`;
+  document.getElementById('capa').hidden = false;
+  document.body.style.overflow = 'hidden';
+  panel.querySelector('.cerrar').onclick = cerrarPanel;
+  panel.scrollTop = 0;
+  const f = panel.querySelector('input,select,textarea'); if (f && matchMedia('(min-width:700px)').matches) f.focus();
+}
+function cerrarPanel() {
+  document.getElementById('capa').hidden = true; document.body.style.overflow = '';
+  if (alCerrarPanel) { const f = alCerrarPanel; alCerrarPanel = null; f(); }
+}
+document.getElementById('capa').addEventListener('click', e => { if (e.target.id === 'capa') cerrarPanel(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.getElementById('capa').hidden) cerrarPanel(); });
+
+function toast(t) {
+  const el = document.getElementById('toast'); el.textContent = t; el.hidden = false;
+  clearTimeout(toast._t); toast._t = setTimeout(() => el.hidden = true, 3200);
+}
+
+const MAX_MB = 15;
+const tam = b => b < 1048576 ? Math.max(1, Math.round(b / 1024)) + ' KB' : (b / 1048576).toFixed(1).replace('.', ',') + ' MB';
+function campoArchivo(id, titulo) {
+  return `<label class="archivo" id="${id}Z"><input type="file" id="${id}" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.zip">
+    <b id="${id}T">${titulo}</b><small id="${id}S">Acta de cierre, informe final o fotos. Máximo ${MAX_MB} MB. Se guarda en Google Drive.</small></label>`;
+}
+function activarArchivo(id) {
+  const inp = document.getElementById(id);
+  inp.onchange = () => {
+    const f = inp.files[0], z = document.getElementById(id + 'Z');
+    if (!f) return;
+    if (f.size > MAX_MB * 1048576) {
+      inp.value = ''; z.classList.remove('lleno');
+      document.getElementById(id + 'T').textContent = 'Archivo demasiado grande';
+      document.getElementById(id + 'S').textContent = `Pesa ${tam(f.size)} y el máximo es ${MAX_MB} MB. Comprímelo o divídelo.`;
+      return;
+    }
+    z.classList.add('lleno');
+    document.getElementById(id + 'T').textContent = f.name;
+    document.getElementById(id + 'S').textContent = `${tam(f.size)} · listo para subir. Toca para cambiarlo.`;
+  };
+}
+function leerArchivo(id) {
+  const f = document.getElementById(id) && document.getElementById(id).files[0];
+  if (!f) return Promise.resolve(null);
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res({ nombre: f.name, tipo: f.type || 'application/octet-stream', base64: String(r.result).split(',')[1] });
+    r.onerror = () => rej(new Error('No se pudo leer el archivo.'));
+    r.readAsDataURL(f);
+  });
+}
+
+async function enviar(btn, fn, textoEspera) {
+  const txt = btn.textContent; btn.disabled = true; btn.textContent = textoEspera || 'Guardando…';
+  const cont = btn.closest('form, .panel-cuerpo');
+  const errEl = cont && cont.querySelector('.error');
+  if (errEl) errEl.hidden = true;
+  try { await fn(); }
+  catch (e) {
+    if (e.code === 401) { cerrarPanel(); return pintarAcceso(e.message); }
+    if (errEl) { errEl.textContent = e.message; errEl.hidden = false; } else toast(e.message);
+    btn.disabled = false; btn.textContent = txt;
+  }
+}
+
+/* ============================================================ DETALLE */
+async function detalle(id) {
+  const p0 = S.data.proyectos.find(p => p.ID === id);
+  abrirPanel(esc(p0.Proyecto), `${esc(p0.ID)} · ${esc(p0.Area)}`, '<div class="cargando">Cargando historial…</div>');
+  let hist = [];
+  try { const r = await api('proyecto', { id }); hist = r.historial; actualizarProyecto(r.proyecto); }
+  catch (e) { hist = null; }
+  const p = S.data.proyectos.find(x => x.ID === id);
+  const abierto = !p.FechaCierre && p.Estado !== 'Cancelado';
+  const lg = logro(p);
+  const desv = p.FechaCierre ? dias(p.FechaFin, p.FechaCierre) : Math.max(0, dias(p.FechaFin, hoyD()));
+  const cuerpo = `
+    <div class="bloque st-${CLASE[p.Estado]}">
+      <div class="t-cab"><span class="estado">${esc(p.Estado)}</span><span>${p.Reprogramaciones ? plural(p.Reprogramaciones, 'reprogramación', 'reprogramaciones') : ''}</span></div>
+      <div class="barra-fila" style="margin-top:10px">${barra(p)}<span class="pct">${p.Avance}%</span></div>
+      ${abierto && ['En curso', 'Por vencer', 'Atrasado'].includes(p.Estado) ? `<div class="t-pie"><span>Esperado hoy: ${Math.round(esperado(p) * 100)}%</span>${p.Avance >= Math.round(esperado(p) * 100) ? '<span class="dif" style="color:#00875E">Al día con el plan</span>' : '<span class="dif" style="color:#9A6200">Por debajo del plan</span>'}</div>` : ''}
+    </div>
+    <div class="bloque">
+      <h3>${esc(p.Indicador)}</h3>
+      <div class="ind"><div><span>Línea base</span><b>${num(p.LineaBase)}</b></div><div class="act"><span>Actual</span><b>${num(p.ValorActual)}</b></div><div><span>Meta</span><b>${num(p.Meta)}</b></div></div>
+      <div class="barra-fila meta-barra"><div class="barra"><span class="real" style="width:${clamp(lg) * 100}%"></span></div><span class="pct">${pct(lg)}</span></div>
+      <div class="t-pie"><span>Logro de la meta</span></div>
+    </div>
+    ${p.Objetivo ? `<div class="bloque"><h3>Objetivo</h3><div>${esc(p.Objetivo)}</div></div>` : ''}
+    <div class="bloque"><div class="datos">
+      <div><span>Inicio</span>${fLarga(p.FechaInicio)}</div>
+      <div><span>Fin previsto</span>${fLarga(p.FechaFin)}</div>
+      <div><span>Cierre real</span>${p.FechaCierre ? fLarga(p.FechaCierre) : '—'}</div>
+      <div><span>Desvío</span>${desv > 0 ? plural(desv, 'día') + ' de atraso' : desv < 0 ? plural(-desv, 'día') + ' antes' : 'Sin desvío'}</div>
+    </div></div>
+    ${p.FechaCierre && p.Estado !== 'Cancelado' ? `<div class="bloque"><h3>Respaldo del proyecto</h3>
+      ${p.Respaldo ? `<p class="resumen-h" style="margin:0 0 12px">Los archivos de cierre están guardados en Google Drive.</p>
+        <div class="acciones" style="margin:0"><a class="btn pri" href="${esc(p.Respaldo)}" target="_blank" rel="noopener">Ver archivos de respaldo</a><button class="btn" id="dResp">Adjuntar otro archivo</button></div>`
+      : `<p class="resumen-h" style="margin:0 0 12px">Este proyecto todavía no tiene archivo de respaldo.</p><button class="btn pri" id="dResp">Adjuntar respaldo</button>`}
+    </div>` : ''}
+    ${abierto ? `<div class="acciones">
+      <button class="btn pri" id="dAvance">Registrar avance</button>
+      <button class="btn" id="dEditar">Editar</button>
+      ${p.Estado === 'En pausa' ? '<button class="btn" id="dReanudar">Reanudar</button>' : '<button class="btn" id="dPausa">Pausar</button>'}
+      <button class="btn peligro" id="dCancelar">Cancelar proyecto</button>
+    </div>` : ''}
+    <div class="bloque"><h3>Historial</h3>
+      ${hist === null ? '<p class="resumen-h">El historial necesita conexión.</p>' : hist.length ? `<ol class="linea-tiempo">${hist.map(h => `
+        <li class="${h.tipo === 'Cierre' ? 'st-ok' : h.tipo === 'Cambio de estado' ? 'st-pv' : h.tipo === 'Edición' ? 'st-pa' : 'st-ec'}">
+          <div class="lt-cab"><b>${esc(h.tipo)}${h.tipo === 'Avance' || h.tipo === 'Cierre' ? ` · ${h.avance}%` : ''}</b><span>${fLarga(h.fecha)}</span></div>
+          ${h.comentario ? `<p>${esc(h.comentario)}</p>` : ''}
+          ${h.valor !== '' && h.valor !== undefined && h.valor !== null && (h.tipo === 'Avance' || h.tipo === 'Cierre') ? `<div class="lt-cab">Indicador: ${num(h.valor)}</div>` : ''}
+          ${h.evidencia ? `<a href="${esc(h.evidencia)}" target="_blank" rel="noopener">Ver evidencia</a>` : ''}
+        </li>`).join('')}</ol>` : '<p class="resumen-h">Sin registros todavía.</p>'}
+    </div>`;
+  abrirPanel(esc(p.Proyecto), `${esc(p.ID)} · ${esc(p.Area)}`, cuerpo);
+  const on = (i, f) => { const b = document.getElementById(i); if (b) b.onclick = f; };
+  on('dAvance', () => formAvance(p.ID));
+  on('dEditar', () => formProyecto(p));
+  on('dPausa', () => formEstado(p, 'En pausa'));
+  on('dReanudar', () => formEstado(p, 'Reanudar'));
+  on('dCancelar', () => formEstado(p, 'Cancelado'));
+  on('dResp', () => formRespaldo(p));
+}
+
+/* ============================================================ FORMULARIOS */
+function formProyecto(p) {
+  const ed = !!p; p = p || {};
+  const hoy = iso(hoyD());
+  abrirPanel(ed ? 'Editar proyecto' : 'Nuevo proyecto', ed ? esc(p.ID) : 'Define qué vas a medir y cuándo terminas', `
+    <form id="fP" novalidate>
+      <p class="error" hidden></p>
+      <div class="campo"><label for="pN">Nombre del proyecto</label><input id="pN" required maxlength="120" value="${esc(p.Proyecto || '')}" placeholder="Ej. Reducción del tiempo de picking"></div>
+      <div class="campo"><label for="pA">Área</label><select id="pA" required><option value="">Elige un área</option>
+        ${S.data.areas.map(a => `<option ${a === p.Area ? 'selected' : ''}>${esc(a)}</option>`).join('')}</select></div>
+      <div class="campo"><label for="pO">Objetivo</label><textarea id="pO" placeholder="Qué problema resuelves y qué resultado esperas">${esc(p.Objetivo || '')}</textarea></div>
+      <div class="campo"><label for="pI">Indicador que vas a medir</label><input id="pI" required value="${esc(p.Indicador || '')}" placeholder="Ej. Tiempo de picking por pedido (min)"><small>Incluye la unidad entre paréntesis.</small></div>
+      <div class="dos">
+        <div class="campo"><label for="pB">Línea base</label><input id="pB" type="number" step="any" inputmode="decimal" required value="${p.LineaBase ?? ''}"></div>
+        <div class="campo"><label for="pM">Meta</label><input id="pM" type="number" step="any" inputmode="decimal" required value="${p.Meta ?? ''}"></div>
+      </div>
+      <div class="dos">
+        <div class="campo"><label for="pFi">Fecha de inicio</label><input id="pFi" type="date" required value="${p.FechaInicio || hoy}"></div>
+        <div class="campo"><label for="pFf">Fecha de fin</label><input id="pFf" type="date" required value="${p.FechaFin || ''}"></div>
+      </div>
+      ${ed ? `<div class="campo"><label for="pMot">Motivo del cambio</label><input id="pMot" placeholder="Obligatorio si reprogramas la fecha de fin"><small>Cada reprogramación queda registrada y se informa en el historial.</small></div>` : ''}
+      <button class="btn pri" type="submit" style="width:100%">${ed ? 'Guardar cambios' : 'Registrar proyecto'}</button>
+    </form>`);
+  const f = document.getElementById('fP');
+  f.onsubmit = e => {
+    e.preventDefault();
+    const v = id => document.getElementById(id).value.trim();
+    const d = { Proyecto: v('pN'), Area: v('pA'), Objetivo: v('pO'), Indicador: v('pI'), LineaBase: v('pB'), Meta: v('pM'), FechaInicio: v('pFi'), FechaFin: v('pFf') };
+    enviar(f.querySelector('[type=submit]'), async () => {
+      validarProyecto(d);
+      if (ed) {
+        if (d.FechaFin !== p.FechaFin && !v('pMot')) throw new Error('Indica el motivo de la reprogramación.');
+        const r = await api('editar', Object.assign({ id: p.ID, motivo: v('pMot') }, d));
+        actualizarProyecto(r); toast('Cambios guardados'); alCerrarPanel = () => detalle(p.ID);
+      } else {
+        const r = await api('crear', d);
+        actualizarProyecto(r); toast('Proyecto registrado: ' + r.ID); S.vista = 'proyectos'; S.filtro = 'todos';
+      }
+      cerrarPanel(); render();
+    });
+  };
+}
+
+function validarProyecto(d) {
+  const falta = [['Proyecto', 'nombre'], ['Area', 'área'], ['Indicador', 'indicador'], ['FechaInicio', 'fecha de inicio'], ['FechaFin', 'fecha de fin']].filter(([k]) => !d[k]).map(x => x[1]);
+  if (falta.length) throw new Error('Completa: ' + falta.join(', ') + '.');
+  if (d.LineaBase === '' || d.Meta === '' || isNaN(+d.LineaBase) || isNaN(+d.Meta)) throw new Error('La línea base y la meta deben ser números.');
+  if (+d.LineaBase === +d.Meta) throw new Error('La meta debe ser distinta de la línea base.');
+  if (d.FechaFin < d.FechaInicio) throw new Error('La fecha de fin no puede ser anterior al inicio.');
+}
+
+function formAvance(id) {
+  const abiertos = S.data.proyectos.filter(p => p.Estado in ORDEN).sort((a, b) => ORDEN[a.Estado] - ORDEN[b.Estado]);
+  if (!abiertos.length) return toast('No hay proyectos abiertos. Registra uno primero.');
+  const sel = abiertos.find(p => p.ID === id) || abiertos[0];
+  abrirPanel('Registrar avance', 'Lo que registras queda en el historial y en el reporte mensual', `
+    <form id="fA" novalidate>
+      <p class="error" hidden></p>
+      <div class="campo"><label for="aP">Proyecto</label><select id="aP">
+        ${abiertos.map(p => `<option value="${esc(p.ID)}" ${p.ID === sel.ID ? 'selected' : ''}>${esc(p.Proyecto)}</option>`).join('')}</select></div>
+      <div class="campo"><label for="aR">Avance del proyecto</label>
+        <div class="rango"><input id="aR" type="range" min="0" max="100" step="5"><output id="aO"></output></div>
+        <small id="aAnt"></small></div>
+      <div id="aCierre" hidden>
+        <div class="nota">Con 100% el proyecto se cierra con fecha de hoy y se avisa a tu gerente.</div>
+        <div class="campo"><label>Archivo de respaldo del cierre</label>${campoArchivo('aF', 'Adjuntar archivo de respaldo')}</div>
+      </div>
+      <div class="campo"><label for="aV" id="aVl">Valor actual del indicador</label><input id="aV" type="number" step="any" inputmode="decimal"><small id="aVs"></small></div>
+      <div class="campo"><label for="aC">Qué hiciste</label><textarea id="aC" required placeholder="Ej. Reubicación de 120 SKUs clase A cerca de despacho"></textarea></div>
+      <div class="campo"><label for="aE">Enlace a evidencia (opcional)</label><input id="aE" type="url" placeholder="Foto, acta o archivo en Drive"></div>
+      <button class="btn pri" type="submit" style="width:100%" id="aBtn">Guardar avance</button>
+    </form>`);
+  const f = document.getElementById('fA'), r = document.getElementById('aR'), o = document.getElementById('aO');
+  const pintar = () => {
+    const p = S.data.proyectos.find(x => x.ID === document.getElementById('aP').value);
+    o.textContent = r.value + '%';
+    document.getElementById('aCierre').hidden = r.value !== '100';
+    document.getElementById('aBtn').textContent = r.value === '100' ? 'Guardar y cerrar proyecto' : 'Guardar avance';
+    return p;
+  };
+  const cambiarProyecto = () => {
+    const p = S.data.proyectos.find(x => x.ID === document.getElementById('aP').value);
+    r.value = p.Avance;
+    document.getElementById('aAnt').textContent = `Último registro: ${p.Avance}%. Esperado hoy: ${Math.round(esperado(p) * 100)}%.`;
+    document.getElementById('aVl').textContent = 'Valor actual: ' + p.Indicador;
+    document.getElementById('aV').placeholder = num(p.ValorActual);
+    document.getElementById('aVs').textContent = `Base ${num(p.LineaBase)}, meta ${num(p.Meta)}. Déjalo vacío si no hubo nueva medición.`;
+    pintar();
+  };
+  document.getElementById('aP').onchange = cambiarProyecto;
+  r.oninput = pintar;
+  activarArchivo('aF');
+  cambiarProyecto();
+  f.onsubmit = e => {
+    e.preventDefault();
+    const id = document.getElementById('aP').value;
+    const d = { id, avance: +r.value, valor: document.getElementById('aV').value, comentario: document.getElementById('aC').value.trim(), evidencia: document.getElementById('aE').value.trim() };
+    const conArchivo = d.avance === 100 && document.getElementById('aF').files[0];
+    enviar(document.getElementById('aBtn'), async () => {
+      if (!d.comentario) throw new Error('Describe qué hiciste: es el respaldo de tu trabajo.');
+      if (d.avance === 100) d.archivo = await leerArchivo('aF');
+      const res = await api('avance', d);
+      actualizarProyecto(res);
+      const mk = mesDe(iso(hoyD())); S.data.registrosPorMes = S.data.registrosPorMes || {};
+      S.data.registrosPorMes[mk] = (S.data.registrosPorMes[mk] || 0) + 1;
+      toast(res.FechaCierre ? `Proyecto cerrado: ${res.Estado.toLowerCase()}${d.archivo ? '. Respaldo guardado en Drive' : ''}` : 'Avance registrado');
+      cerrarPanel(); render();
+    }, conArchivo ? 'Subiendo respaldo…' : 'Guardando…');
+  };
+}
+
+function formRespaldo(p) {
+  abrirPanel('Adjuntar respaldo', esc(p.Proyecto), `
+    <form id="fR" novalidate><p class="error" hidden></p>
+      <div class="campo">${campoArchivo('rF', 'Elegir archivo')}</div>
+      <div class="campo"><label for="rC">Descripción (opcional)</label><input id="rC" placeholder="Ej. Acta firmada por el jefe de Almacén"></div>
+      <p class="resumen-h">El archivo se guarda en la carpeta del proyecto en Google Drive. En la hoja solo queda el enlace.</p>
+      <button class="btn pri ancho" type="submit">Subir respaldo</button>
+    </form>`);
+  activarArchivo('rF');
+  const f = document.getElementById('fR');
+  f.onsubmit = e => {
+    e.preventDefault();
+    enviar(f.querySelector('[type=submit]'), async () => {
+      const archivo = await leerArchivo('rF');
+      if (!archivo) throw new Error('Elige un archivo.');
+      const r = await api('respaldo', { id: p.ID, archivo, comentario: document.getElementById('rC').value.trim() });
+      actualizarProyecto(r); toast('Respaldo guardado en Drive');
+      alCerrarPanel = () => detalle(p.ID); cerrarPanel(); render();
+    }, 'Subiendo…');
+  };
+}
+
+function formEstado(p, estado) {
+  const t = { 'En pausa': ['Pausar proyecto', 'Pausar', 'Mientras esté en pausa no genera avisos de atraso.'],
+    'Reanudar': ['Reanudar proyecto', 'Reanudar', 'El estado vuelve a calcularse con las fechas.'],
+    'Cancelado': ['Cancelar proyecto', 'Cancelar proyecto', 'El proyecto pasa al historial como cancelado. No cuenta en el cumplimiento de fechas.'] }[estado];
+  abrirPanel(t[0], esc(p.Proyecto), `
+    <form id="fE" novalidate><p class="error" hidden></p>
+      <p class="resumen-h">${t[2]}</p>
+      <div class="campo"><label for="eC">Motivo</label><textarea id="eC" required></textarea></div>
+      <button class="btn ${estado === 'Cancelado' ? 'peligro' : 'pri'}" type="submit" style="width:100%">${t[1]}</button>
+    </form>`);
+  const f = document.getElementById('fE');
+  f.onsubmit = e => {
+    e.preventDefault();
+    const c = document.getElementById('eC').value.trim();
+    enviar(f.querySelector('[type=submit]'), async () => {
+      if (!c) throw new Error('Indica el motivo: queda en el historial.');
+      const r = await api('estado', { id: p.ID, estado, comentario: c });
+      actualizarProyecto(r); toast('Estado actualizado: ' + r.Estado);
+      alCerrarPanel = () => detalle(p.ID); cerrarPanel(); render();
+    });
+  };
+}
+
+/* ============================================================ VISTA: MÉTRICAS */
+function vMetricas() {
+  const m = metricasMes(S.mes);
+  const anio = S.mes.slice(0, 4);
+  const meses = [];
+  for (let i = 11; i >= 0; i--) { const [y, n] = S.mes.split('-').map(Number); const d = new Date(y, n - 1 - i, 1); meses.push(iso(d).slice(0, 7)); }
+  const serie = meses.map(k => ({ k, ...metricasMes(k) }));
+  const anual = S.data.proyectos.filter(p => p.FechaCierre && p.Estado !== 'Cancelado' && p.FechaCierre.slice(0, 4) === anio && mesDe(p.FechaCierre) <= S.mes);
+  const anualOk = anual.filter(p => dias(p.FechaFin, p.FechaCierre) <= 0).length;
+  const ps = S.data.proyectos;
+  const abiertos = ps.filter(p => ACTIVOS.includes(p.Estado));
+  const areas = [...new Set(ps.map(p => p.Area))].sort();
+  const rep = (S.data.reportes || []).find(r => r.mes === S.mes);
+
+  document.getElementById('vista').innerHTML = `<div class="wrap">
+    <div class="cab-vista"><h1>Métricas</h1><input type="month" id="mMes" value="${S.mes}" max="${mesDe(iso(hoyD()))}" aria-label="Mes"></div>
+    <div class="met-a"><div class="heroe">
+      <img class="marca-agua" src="icons/logo-mark.png" alt="">
+      <div class="n ${m.cumpl === null ? 'vacia' : ''}">${m.cumpl === null ? '—' : pct(m.cumpl)}</div>
+      <p>${m.cerr.length ? `Cumplimiento de fechas en ${nomMes(S.mes)}: ${m.aT} de ${plural(m.cerr.length, 'proyecto cerrado', 'proyectos cerrados')} a tiempo.` : `Sin proyectos cerrados en ${nomMes(S.mes)}.`}</p>
+      <div class="anual">Acumulado ${anio}: ${anual.length ? `${pct(anualOk / anual.length)} a tiempo (${anualOk} de ${anual.length})` : 'sin cierres todavía'}</div>
+    </div>
+    <div class="cifras">
+      <div class="cifra"><b>${m.cerr.length}</b><span>cerrados en el mes</span></div>
+      <div class="cifra ${m.conRetraso ? 'mal' : ''}"><b>${m.conRetraso}</b><span>con retraso</span></div>
+      <div class="cifra"><b>${m.desv === null ? '—' : (m.desv > 0 ? '+' : '') + m.desv}</b><span>desvío prom. (días)</span></div>
+      <div class="cifra"><b>${m.logroProm === null ? '—' : pct(m.logroProm)}</b><span>logro de metas</span></div>
+      <div class="cifra"><b>${m.registros}</b><span>avances registrados</span></div>
+      <div class="cifra"><b>${m.nuevos}</b><span>proyectos iniciados</span></div>
+    </div></div>
+    <div class="met-b"><div>
+    <div class="bloque"><h3>Cumplimiento de fechas, últimos 12 meses</h3><div class="grafico">${graficoTendencia(serie)}</div></div>
+    <div class="bloque"><h3>Informe mensual en PDF</h3>
+      <p class="resumen-h">${rep && rep.pdf ? `Informe de ${nomMes(S.mes)} guardado en Drive el ${fLarga(rep.generado)}.` : `Informe ejecutivo con membrete de la empresa. Se guarda automáticamente en Google Drive.`}
+        ${rep && rep.enviadoA ? ` Enviado a ${esc(rep.enviadoA)}.` : ''}</p>
+      <div class="acciones" style="margin:0 0 10px">
+        <button class="btn pri" id="mPdf">${rep && rep.pdf ? 'Actualizar PDF' : 'Generar PDF'}</button>
+        <button class="btn" id="mEnviar">${rep && rep.enviadoA ? 'Reenviar' : 'Enviar'} al gerente</button>
+        ${rep && rep.pdf ? `<a class="btn" href="${esc(rep.pdf)}" target="_blank" rel="noopener">Ver PDF</a>` : ''}
+      </div>
+      <p class="resumen-h" style="margin:0;font-size:13px">El día 1 de cada mes el informe del mes anterior se genera, se guarda y se envía solo.</p>
+    </div></div>
+    <div class="bloque"><h3>Por área</h3><div class="tabla-scroll"><table class="t">
+      <thead><tr><th>Área</th><th class="num">Abiertos</th><th class="num">Atrasados</th><th class="num">Cerrados (a tiempo)</th></tr></thead>
+      <tbody>${areas.map(a => {
+        const c = anual.filter(p => p.Area === a), ok = c.filter(p => dias(p.FechaFin, p.FechaCierre) <= 0).length;
+        return `<tr><td>${esc(a)}</td><td class="num">${abiertos.filter(p => p.Area === a).length}</td>
+          <td class="num" style="${abiertos.some(p => p.Area === a && p.Estado === 'Atrasado') ? 'color:#C3333B;font-weight:700' : ''}">${abiertos.filter(p => p.Area === a && p.Estado === 'Atrasado').length}</td>
+          <td class="num">${c.length ? `${c.length} <span style="color:var(--suave)">(${pct(ok / c.length)})</span>` : '—'}</td></tr>`;
+      }).join('')}</tbody></table></div>
+      <p class="resumen-h" style="margin:8px 0 0;font-size:13px">Abiertos y atrasados: hoy. Cerrados: acumulado ${anio}.</p></div>
+    </div>
+  </div>`;
+  document.getElementById('mMes').onchange = e => { if (e.target.value) { S.mes = e.target.value; vMetricas(); } };
+  const guardarRep = (r, enviadoA) => {
+    const prev = (S.data.reportes || []).find(x => x.mes === S.mes) || {};
+    S.data.reportes = (S.data.reportes || []).filter(x => x.mes !== S.mes)
+      .concat([{ mes: S.mes, enviadoA: enviadoA || prev.enviadoA || '', generado: iso(hoyD()), pdf: r.url || prev.pdf || '' }]);
+  };
+  document.getElementById('mPdf').onclick = e => enviar(e.target, async () => {
+    const r = await api('informePdf', { mes: S.mes });
+    if (!r.url) { toast('En la demostración no se generan archivos'); e.target.disabled = false; e.target.textContent = 'Generar PDF'; return; }
+    guardarRep(r); toast('Informe guardado en Drive'); vMetricas();
+  }, 'Generando PDF…');
+  document.getElementById('mEnviar').onclick = e => enviar(e.target, async () => {
+    const r = await api('enviarReporte', { mes: S.mes });
+    guardarRep(r, r.enviadoA); toast('Informe enviado a ' + r.enviadoA); vMetricas();
+  }, 'Enviando…');
+}
+
+function graficoTendencia(serie) {
+  const W = 360, H = 150, top = 22, base = 118, ancho = W / serie.length, bw = ancho * 0.58;
+  const barras = serie.map((s, i) => {
+    const x = i * ancho + (ancho - bw) / 2, sel = s.k === S.mes;
+    const mesTxt = MES[+s.k.slice(5) - 1];
+    if (s.cumpl === null) return `<rect x="${x}" y="${base - 2}" width="${bw}" height="2" fill="#D3DDE9"/>
+      <text x="${x + bw / 2}" y="${base + 16}" text-anchor="middle" font-size="10" fill="#5A6A84">${mesTxt}</text>`;
+    const h = Math.max(3, s.cumpl * (base - top));
+    return `<rect x="${x}" y="${base - h}" width="${bw}" height="${h}" rx="3" fill="${sel ? 'url(#gradBarra)' : '#C3D2E4'}"><title>${nomMes(s.k)}: ${pct(s.cumpl)} (${s.aT}/${s.cerr.length})</title></rect>
+      <text x="${x + bw / 2}" y="${base - h - 5}" text-anchor="middle" font-size="10" font-weight="600" fill="#0A1A3D">${Math.round(s.cumpl * 100)}</text>
+      <text x="${x + bw / 2}" y="${base + 16}" text-anchor="middle" font-size="10" fill="${sel ? '#0A1A3D' : '#5A6A84'}" font-weight="${sel ? 700 : 400}">${mesTxt}</text>
+      <text x="${x + bw / 2}" y="${base + 30}" text-anchor="middle" font-size="9" fill="#5A6A84">${s.cerr.length}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Porcentaje de proyectos cerrados a tiempo por mes" font-family="Manrope, system-ui, sans-serif">
+    <defs><linearGradient id="gradBarra" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#00E6A0"/><stop offset=".55" stop-color="#00BFDB"/><stop offset="1" stop-color="#01A8F6"/></linearGradient></defs>
+    <line x1="0" x2="${W}" y1="${base}" y2="${base}" stroke="#D3DDE9"/>${barras}</svg>
+    <p class="resumen-h" style="margin:6px 0 0;font-size:13px">Barras: % cerrado a tiempo. Número inferior: proyectos cerrados. Gris: mes sin cierres.</p>`;
+}
+
+/* ============================================================ VISTA: HISTORIAL */
+function vHistorial() {
+  const todos = S.data.proyectos.filter(p => p.FechaCierre).sort((a, b) => b.FechaCierre.localeCompare(a.FechaCierre));
+  const anios = [...new Set(todos.map(p => p.FechaCierre.slice(0, 4)))].sort().reverse();
+  const areas = [...new Set(todos.map(p => p.Area))].sort();
+  const H = S.hist;
+  let l = todos.filter(p => (!H.anio || p.FechaCierre.startsWith(H.anio)) && (!H.area || p.Area === H.area));
+  const base = l;
+  if (H.res === 'ok') l = l.filter(p => p.Estado === 'Completado a tiempo');
+  if (H.res === 'cr') l = l.filter(p => p.Estado === 'Completado con retraso');
+  if (H.res === 'ca') l = l.filter(p => p.Estado === 'Cancelado');
+  const comp = base.filter(p => p.Estado !== 'Cancelado'), ok = comp.filter(p => p.Estado === 'Completado a tiempo').length;
+  const segs = [['todos', 'Todos'], ['ok', 'A tiempo'], ['cr', 'Con retraso'], ['ca', 'Cancelados']];
+
+  document.getElementById('vista').innerHTML = `<div class="wrap">
+    <div class="cab-vista"><h1>Historial</h1></div>
+    <div class="hist-filtros"><div class="seg" role="group" aria-label="Resultado">${segs.map(([k, t]) => `<button data-r="${k}" aria-pressed="${H.res === k}">${t}</button>`).join('')}</div>
+    <div class="fila-filtros">
+      <select id="hA" aria-label="Año"><option value="">Todos los años</option>${anios.map(a => `<option ${a === H.anio ? 'selected' : ''}>${a}</option>`).join('')}</select>
+      <select id="hR" aria-label="Área"><option value="">Todas las áreas</option>${areas.map(a => `<option ${a === H.area ? 'selected' : ''}>${esc(a)}</option>`).join('')}</select>
+    </div></div>
+    <p class="resumen-h">${comp.length ? `<b>${plural(comp.length, 'proyecto completado', 'proyectos completados')}</b>, ${pct(ok / comp.length)} a tiempo` : 'Aún no hay proyectos completados con estos filtros'}${base.length - comp.length ? `, ${plural(base.length - comp.length, 'cancelado')}` : ''}.</p>
+    ${l.length ? '<div class="grid-tarjetas">' : ''}${l.map(p => {
+      const d = dias(p.FechaFin, p.FechaCierre), lg = logro(p);
+      const etiqueta = p.Estado === 'Cancelado' ? 'Cancelado' : d > 0 ? `+${plural(d, 'día')}` : d < 0 ? `${plural(-d, 'día')} antes` : 'En fecha';
+      return `<button class="cerrado st-${CLASE[p.Estado]}" data-id="${esc(p.ID)}">
+        <div class="c1"><h3>${esc(p.Proyecto)}</h3><span class="desv">${etiqueta}</span></div>
+        <div class="c2"><span>${esc(p.Area)}${p.Respaldo ? ' · <span class="chip-resp">con respaldo</span>' : ''}</span><span>Previsto ${fCorta(p.FechaFin)}, ${p.Estado === 'Cancelado' ? 'cancelado' : 'cerrado'} ${fCorta(p.FechaCierre)}</span>
+        ${p.Estado !== 'Cancelado' ? `<span>${esc(p.Indicador.replace(/\s*\(.*\)$/, ''))}: ${num(p.LineaBase)} → ${num(p.ValorActual)} (meta ${num(p.Meta)}, logro ${pct(lg)})</span>` : ''}</div>
+      </button>`;
+    }).join('')}${l.length ? '</div>' : '<div class="vacio">No hay proyectos con estos filtros.</div>'}
+  </div>`;
+  document.querySelectorAll('.seg button').forEach(b => b.onclick = () => { H.res = b.dataset.r; vHistorial(); });
+  document.getElementById('hA').onchange = e => { H.anio = e.target.value; vHistorial(); };
+  document.getElementById('hR').onchange = e => { H.area = e.target.value; vHistorial(); };
+  document.querySelectorAll('.cerrado').forEach(b => b.onclick = () => detalle(b.dataset.id));
+}
+
+/* ============================================================ AVISOS Y AJUSTES */
+function alertas() {
+  const ps = S.data.proyectos;
+  const atr = ps.filter(p => p.Estado === 'Atrasado'), pv = ps.filter(p => p.Estado === 'Por vencer'), sr = ps.filter(sinRegistro);
+  return { atr, pv, sr, total: atr.length + pv.length + sr.filter(p => !atr.includes(p) && !pv.includes(p)).length };
+}
+
+function panelAlertas() {
+  const a = alertas();
+  const grupo = (t, l, f) => l.length ? `<div class="bloque"><h3>${t}</h3>${l.map(p => `<button class="cerrado st-${CLASE[p.Estado]}" data-id="${esc(p.ID)}" style="margin-bottom:6px">
+      <div class="c1"><h3>${esc(p.Proyecto)}</h3><span class="desv">${f(p)}</span></div><div class="c2"><span>${esc(p.Area)}</span><span>Avance ${p.Avance}%</span></div></button>`).join('')}</div>` : '';
+  abrirPanel('Avisos', 'También te llegan por correo cada mañana', (
+    grupo('Atrasados', a.atr, p => `${plural(dias(p.FechaFin, hoyD()), 'día')} de atraso`) +
+    grupo('Por vencer', a.pv, p => { const r = dias(hoyD(), p.FechaFin); return r ? `faltan ${plural(r, 'día')}` : 'vence hoy'; }) +
+    grupo(`Sin registros hace ${S.data.diasSinRegistro} días o más`, a.sr, p => `último ${fCorta(p.UltimoRegistro)}`)
+  ) || '<div class="vacio">Todo en orden: no hay atrasos ni vencimientos próximos.</div>');
+  document.querySelectorAll('#panel .cerrado').forEach(b => b.onclick = () => detalle(b.dataset.id));
+}
+
+function panelAjustes() {
+  const u = usuarioActual();
+  abrirPanel('Tu cuenta', '', `
+    <div class="bloque" style="display:flex;align-items:center;gap:14px">
+      <span class="avatar" style="width:48px;height:48px;flex:0 0 48px;background:var(--navy)">${avatar()}</span>
+      <div style="min-width:0"><div style="font-weight:700">${esc(u.nombre || u.email)}</div>
+      <div class="resumen-h" style="margin:0;word-break:break-all">${esc(u.email)}</div></div>
+    </div>
+    <div class="bloque"><div class="datos">
+      <div><span>Acceso</span>${S.demo ? 'Demostración' : 'Cuenta corporativa de Google'}</div>
+      <div><span>Datos al</span>${fLarga(iso(hoyD()))}</div>
+    </div></div>
+    <div class="acciones"><button class="btn pri" id="jAct">Actualizar datos</button>
+    ${enGAS ? '' : `<button class="btn" id="jSalir">${S.demo ? 'Salir de la demostración' : 'Cerrar sesión'}</button>`}</div>`);
+  document.getElementById('jAct').onclick = () => { cerrarPanel(); cargar(); };
+  const js = document.getElementById('jSalir');
+  if (js) js.onclick = () => { cerrarPanel(); salir(); arrancar(); };
+}
+
+/* ============================================================ ACCESO */
+function pintarAcceso(error) {
+  const sinServidor = !enGAS && !CONFIG.API_URL;
+  const listo = !sinServidor && !enGAS && S.auth && S.auth.clientId && S.auth.dominio;
+  document.getElementById('raiz').innerHTML = `<main class="acceso">
+    <img class="logo-grande" src="icons/logo-acergal.png" alt="Acergal">
+    <h1>Mejora continua</h1>
+    <p class="lema">Proyectos, avances y cumplimiento del área en un solo lugar.</p>
+    ${error ? `<p class="error" role="alert">${esc(error)}</p>` : ''}
+    ${sinServidor ? `<p class="nota-acceso">Esta copia todavía no está conectada a la hoja de Google. Configura API_URL siguiendo la guía de instalación.</p>
+        <button class="btn claro" id="lDemo">Ver demostración</button>`
+      : listo ? `<div id="gBoton" class="g-boton"></div>
+        <p class="dominio">Acceso exclusivo para cuentas <b>@${esc(S.auth.dominio)}</b></p>` : ''}
+  </main>`;
+  const d = document.getElementById('lDemo');
+  if (d) d.onclick = () => { S.demo = true; localStorage.setItem(LS.demo, '1'); cargar(); };
+  if (listo) {
+    iniciarGoogle().then(() => {
+      const ancho = Math.min(320, window.innerWidth - 64);
+      google.accounts.id.renderButton(document.getElementById('gBoton'),
+        { type: 'standard', theme: 'outline', size: 'large', shape: 'pill', text: 'signin_with', logo_alignment: 'left', locale: 'es', width: ancho });
+      const motivo = String(error || '');
+      if (!motivo || motivo.includes('expiró')) google.accounts.id.prompt();
+    }).catch(e => {
+      document.getElementById('gBoton').innerHTML = `<p class="error" role="alert">${esc(e.message)}</p>`;
+    });
+  }
+}
+
+async function arrancar() {
+  if (S.demo || enGAS) return cargar();
+  if (!CONFIG.API_URL) return pintarAcceso();
+  const cache = localStorage.getItem(LS.cache);
+  if (!navigator.onLine && cache && S.cred) { procesar(JSON.parse(cache)); S.offline = true; return render(); }
+  try { await obtenerAuth(); }
+  catch (e) { if (!S.auth) return pintarAcceso('No se pudo contactar al servidor. Revisa tu conexión.'); }
+  if (!S.auth.clientId || !S.auth.dominio) return pintarAcceso('El administrador debe completar DOMINIO y GOOGLE_CLIENT_ID en la hoja CONFIG.');
+  if (sesionValida(120)) return cargar();
+  pintarAcceso();
+}
+
+/* ============================================================ MODO DEMOSTRACIÓN */
+const Demo = (() => {
+  let st = null;
+  const areas = ['Compras', 'Almacén', 'Producción', 'Logística', 'Planificación', 'Calidad', 'Mantenimiento', 'Comercial', 'Finanzas'];
+  const pasos = ['Levantamiento de datos en piso con el equipo del área', 'Análisis de causas raíz con Pareto e Ishikawa',
+    'Prueba piloto de la mejora', 'Implementación de la mejora en el proceso', 'Seguimiento de resultados y ajuste del estándar'];
+  function semilla() {
+    const h = hoyD(), d = n => iso(addD(h, n));
+    // id, nombre, área, objetivo, indicador, base, meta, actual, inicio, fin, cierre, avance, estado, reprog
+    const B = [
+      ['P26-011', 'Reducción del tiempo de picking en almacén central', 'Almacén', 'Reubicar SKUs de alta rotación para bajar el tiempo de preparación.', 'Tiempo de picking por pedido (min)', 18, 12, 14.8, -90, 29, null, 70],
+      ['P26-012', 'Mejora del OTIF en despachos', 'Logística', 'Elevar entregas completas y a tiempo a clientes clave.', 'OTIF (%)', 82, 95, 86, -108, -6, null, 55, '', 1],
+      ['P26-013', 'Reducción de inventario de lento movimiento', 'Planificación', 'Liberar capital inmovilizado en SKUs sin rotación.', 'Días de inventario', 75, 55, 72, -61, 75, null, 25],
+      ['P26-014', 'Lead time de órdenes de compra', 'Compras', 'Eliminar esperas en aprobaciones de compra.', 'Lead time de compras (días)', 12, 6, 7.5, -78, 3, null, 85],
+      ['P26-015', 'Kanban de reposición de insumos', 'Producción', 'Evitar paradas de línea por falta de insumos.', 'Quiebres de stock por mes', 14, 3, 11, -47, -1, null, 45],
+      ['P26-016', 'Plan TPM para equipos críticos', 'Mantenimiento', 'Reducir paradas no programadas.', 'OEE (%)', 62, 75, 64, -153, 60, null, 35, 'En pausa'],
+      ['P26-017', 'Conteos cíclicos de inventario', 'Almacén', 'Mejorar la exactitud del inventario.', 'Exactitud de inventario (%)', 91, 98, 91, 14, 122, null, 0],
+      ['P26-018', 'Estandarización de atención de reclamos', 'Comercial', 'Responder reclamos en máximo 3 días.', 'Tiempo de respuesta a reclamos (días)', 9, 3, 8, -24, 80, null, 10],
+      ['P26-001', 'SMED en línea de envasado', 'Producción', 'Reducir el tiempo de cambio de formato.', 'Tiempo de cambio de formato (min)', 95, 45, 44, -190, -70, -73, 100],
+      ['P26-002', '5S en taller de mantenimiento', 'Mantenimiento', 'Orden y limpieza sostenibles en el taller.', 'Puntaje de auditoría 5S', 45, 80, 82, -230, -150, -152, 100],
+      ['P26-003', 'Rediseño de rutas de reparto zona sur', 'Logística', 'Bajar el costo por entrega.', 'Costo por entrega (Bs)', 38, 30, 31, -200, -125, -118, 100],
+      ['P26-004', 'Reducción de errores de facturación', 'Finanzas', 'Validaciones obligatorias en el sistema.', 'Facturas con error (%)', 6.5, 2, 2.4, -122, -16, -9, 100],
+      ['P26-005', 'Estandarización de recepción de materia prima', 'Calidad', 'Menos rechazos en recepción.', 'Rechazos en recepción (%)', 4.2, 2, 1.8, -140, -12, -14, 100],
+      ['P26-006', 'Tablero de pronóstico de demanda', 'Planificación', 'Mejorar la exactitud del pronóstico.', 'Exactitud de pronóstico (%)', 68, 80, 79, -100, -25, -27, 100],
+      ['P26-007', 'Etiquetado automático en almacén', 'Almacén', 'Automatizar el etiquetado de pallets.', 'Pallets etiquetados por hora', 40, 70, 40, -150, -60, -110, 20, 'Cancelado'],
+      ['P26-008', 'Evaluación de desempeño de proveedores', 'Compras', 'Calificar proveedores críticos cada trimestre.', 'Proveedores evaluados (%)', 20, 100, 100, -260, -180, -171, 100],
+      ['P26-009', 'Reducción de mermas en corte', 'Producción', 'Optimizar el plan de corte de bobinas.', 'Merma de corte (%)', 5.5, 3, 3.1, -175, -105, -97, 100],
+      ['P26-010', 'Orden de despacho digital', 'Logística', 'Eliminar órdenes en papel.', 'Tiempo de emisión de orden (min)', 25, 8, 7, -215, -160, -162, 100]
+    ];
+    const ps = B.map(b => ({ ID: b[0], Proyecto: b[1], Area: b[2], Objetivo: b[3], Indicador: b[4], LineaBase: b[5], Meta: b[6], ValorActual: b[7],
+      FechaInicio: d(b[8]), FechaFin: d(b[9]), FechaCierre: b[10] === null ? '' : d(b[10]), Avance: b[11], Estado: b[12] || '', Reprogramaciones: b[13] || 0, UltimoRegistro: '' }));
+    const hist = [];
+    ps.forEach(p => {
+      const ini = pd(p.FechaInicio);
+      hist.push({ id: p.ID, fecha: iso(ini) + ' 09:00', tipo: 'Creación', avance: 0, valor: p.LineaBase, comentario: `Proyecto registrado. Meta: ${p.LineaBase} → ${p.Meta} al ${fLarga(p.FechaFin)}.` });
+      if (ini > h) { p.UltimoRegistro = iso(ini); return; }
+      const fin = p.FechaCierre ? pd(p.FechaCierre) : addD(h, -(p.ID === 'P26-018' ? 9 : 2));
+      const n = Math.max(1, Math.floor(dias(ini, fin) / 14));
+      const tope = p.Estado === 'Cancelado' ? p.Avance : p.FechaCierre ? 90 : p.Avance;
+      for (let k = 1; k <= n; k++) {
+        const f = k === n && !p.FechaCierre ? fin : addD(ini, Math.round(k * dias(ini, fin) / (n + (p.FechaCierre ? 1 : 0))));
+        const fr = k / n, av = Math.round(tope * fr / 5) * 5;
+        const val = Math.round((p.LineaBase + (p.ValorActual - p.LineaBase) * fr * (p.FechaCierre ? 0.9 : 1)) * 10) / 10;
+        hist.push({ id: p.ID, fecha: iso(f) + ' 17:30', tipo: 'Avance', avance: av, valor: val, comentario: pasos[Math.min(pasos.length - 1, Math.floor(fr * pasos.length - 0.01))] });
+        p.UltimoRegistro = iso(f);
+      }
+      if (p.Estado === 'Cancelado') hist.push({ id: p.ID, fecha: p.FechaCierre + ' 10:00', tipo: 'Cambio de estado', avance: p.Avance, comentario: 'En curso → Cancelado. Motivo: el proveedor del equipo retiró la oferta.' });
+      else if (p.FechaCierre) { hist.push({ id: p.ID, fecha: p.FechaCierre + ' 16:00', tipo: 'Cierre', avance: 100, valor: p.ValorActual, comentario: 'Estándar implementado y entregado al área.' }); p.UltimoRegistro = p.FechaCierre; }
+      if (p.Reprogramaciones) hist.push({ id: p.ID, fecha: iso(addD(h, -20)) + ' 11:00', tipo: 'Edición', avance: p.Avance, comentario: `Fecha fin reprogramada. Motivo: el transportista no entregó los datos GPS a tiempo.` });
+    });
+    const reportes = [];
+    for (let i = 1; i <= 6; i++) { const m = iso(new Date(h.getFullYear(), h.getMonth() - i, 1)).slice(0, 7); reportes.push({ mes: m, enviadoA: 'gerente@acergal.com', generado: iso(new Date(h.getFullYear(), h.getMonth() - i + 1, 1)) }); }
+    return { ps, hist, reportes, seq: 19 };
+  }
+  const copia = o => JSON.parse(JSON.stringify(o));
+  const reg = (id, tipo, avance, valor, comentario, evidencia) => st.hist.push({ id, fecha: iso(hoyD()) + ' ' + new Date().toTimeString().slice(0, 5), tipo, avance, valor, comentario, evidencia });
+  const buscar = id => { const p = st.ps.find(x => x.ID === id); if (!p) throw new Error('No existe el proyecto'); return p; };
+  const est = p => { p.Estado = calcEstado(p); return copia(p); };
+  const api = async (a, d) => {
+    if (!st) st = semilla();
+    await new Promise(r => setTimeout(r, 180));
+    if (a === 'init') {
+      const regs = {}; st.hist.filter(h => h.tipo === 'Avance' || h.tipo === 'Cierre').forEach(h => { const m = h.fecha.slice(0, 7); regs[m] = (regs[m] || 0) + 1; });
+      return copia({ empresa: 'Acergal', usuario: 'demo@acergal.com', areas, diasAviso: 3, diasSinRegistro: 7, hoy: iso(hoyD()), proyectos: st.ps, registrosPorMes: regs, reportes: st.reportes });
+    }
+    if (a === 'proyecto') return { proyecto: est(buscar(d.id)), historial: copia(st.hist.filter(h => h.id === d.id).sort((x, y) => y.fecha.localeCompare(x.fecha))) };
+    if (a === 'crear') {
+      validarProyecto(d);
+      const p = Object.assign({}, d, { ID: 'P26-' + String(st.seq++).padStart(3, '0'), LineaBase: +d.LineaBase, Meta: +d.Meta, ValorActual: +d.LineaBase, FechaCierre: '', Avance: 0, Estado: '', Reprogramaciones: 0, UltimoRegistro: iso(hoyD()) });
+      st.ps.push(p); reg(p.ID, 'Creación', 0, p.LineaBase, `Proyecto registrado. Meta: ${p.LineaBase} → ${p.Meta} al ${fLarga(p.FechaFin)}.`); return est(p);
+    }
+    if (a === 'editar') {
+      const p = buscar(d.id), cambios = [];
+      if (d.FechaFin !== p.FechaFin) { p.Reprogramaciones++; cambios.push(`Fecha fin reprogramada: ${fLarga(p.FechaFin)} → ${fLarga(d.FechaFin)}`); }
+      ['Proyecto', 'Area', 'Objetivo', 'Indicador', 'FechaInicio', 'FechaFin'].forEach(k => p[k] = d[k]); p.LineaBase = +d.LineaBase; p.Meta = +d.Meta;
+      reg(p.ID, 'Edición', p.Avance, '', (cambios.join('. ') || 'Datos del proyecto actualizados') + (d.motivo ? '. Motivo: ' + d.motivo : '')); return est(p);
+    }
+    if (a === 'avance') {
+      const p = buscar(d.id); p.Avance = d.avance; if (d.valor !== '') p.ValorActual = +d.valor; p.UltimoRegistro = iso(hoyD());
+      if (d.avance === 100) { p.FechaCierre = iso(hoyD()); if (p.Estado === 'En pausa') p.Estado = ''; if (d.archivo) p.Respaldo = 'https://drive.google.com/'; }
+      reg(p.ID, d.avance === 100 ? 'Cierre' : 'Avance', d.avance, p.ValorActual, d.comentario, d.evidencia); return est(p);
+    }
+    if (a === 'estado') {
+      const p = buscar(d.id), antes = calcEstado(p);
+      p.Estado = d.estado === 'Reanudar' ? '' : d.estado; if (d.estado === 'Cancelado') p.FechaCierre = iso(hoyD());
+      const r = est(p); reg(p.ID, 'Cambio de estado', p.Avance, '', `${antes} → ${r.Estado}. Motivo: ${d.comentario}`); return r;
+    }
+    if (a === 'enviarReporte') return { mes: d.mes, enviadoA: 'gerente@acergal.com (demostración, no se envió)', url: '' };
+    if (a === 'informePdf') return { mes: d.mes, url: '' };
+    if (a === 'respaldo') { const p = buscar(d.id); p.Respaldo = 'https://drive.google.com/'; reg(p.ID, 'Respaldo', p.Avance, '', 'Archivo adjunto: ' + d.archivo.nombre + ' (demostración: no se subió)'); return est(p); }
+    throw new Error('Acción no disponible');
+  };
+  return { api };
+})();
+
+/* ============================================================ INICIO */
+if ('serviceWorker' in navigator && !enGAS && location.protocol !== 'file:') {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+arrancar();
+</script>
+</body>
+</html>
