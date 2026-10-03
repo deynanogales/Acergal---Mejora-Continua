@@ -1,6 +1,6 @@
 /* Service worker: guarda la app para abrirla rápido y sin conexión.
    Cambia VERSION cada vez que publiques cambios en index.html. */
-const VERSION = 'acergal-mc-v6';
+const VERSION = 'acergal-mc-v7';
 const ARCHIVOS = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
   'icons/logo-mark.png', 'icons/logo-acergal.png'];
 
