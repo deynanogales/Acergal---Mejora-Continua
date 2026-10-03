@@ -288,15 +288,16 @@ body.presentando .tab-esc[data-vista="registrar"]{display:none}
 </style>
 </head>
 <body>
+<script src="config.js"></script>
 <div id="raiz"></div>
 <div id="capa" class="capa" hidden><div class="panel" role="dialog" aria-modal="true" id="panel"></div></div>
 <div id="toast" class="toast" role="status" hidden></div>
 
 <script>
 /* ============================================================ CONFIGURACIÓN
-   Pega aquí la URL de tu implementación de Apps Script (termina en /exec).
-   El dominio corporativo y el ID de cliente de Google se leen de la hoja CONFIG. */
-const CONFIG = { API_URL: 'https://script.google.com/macros/s/AKfycby-atwiAL0nWicHHEcj6aNeQhDjHNwbEL1nAUeq0As9vsgcH5nUrnWXd-Bo_p48DCbs/exec' };
+   La dirección del servidor (URL /exec) se lee del archivo config.js, que se crea una sola vez
+   y no se reemplaza al actualizar la app. Quién puede entrar se define en la hoja ACCESOS. */
+const CONFIG = { API_URL: (window.APP_CONFIG && String(window.APP_CONFIG.API_URL || '').trim()) || '' };
 
 /* ============================================================ ESTADO */
 const LS = { cred: 'mc_cred', cache: 'mc_cache', demo: 'mc_demo', auth: 'mc_auth' };
@@ -401,7 +402,10 @@ async function iniciarGoogle() {
   await cargarGIS();
   if (gisIniciado) return;
   google.accounts.id.initialize({
-    client_id: S.auth.clientId, callback: alRecibirCredencial, auto_select: true, hd: S.auth.dominio,
+    client_id: S.auth.clientId, callback: alRecibirCredencial, auto_select: true,
+    // Con un solo dominio y sin invitados, Google muestra solo cuentas corporativas
+    // Sin filtro de dominio en el selector de cuentas: así pueden elegir su cuenta los invitados
+    // de otras empresas (ej. @gutvas.com). El servidor valida cada ingreso.
     itp_support: true, use_fedcm_for_prompt: true, cancel_on_tap_outside: false, context: 'signin'
   });
   gisIniciado = true;
@@ -409,11 +413,7 @@ async function iniciarGoogle() {
 function alRecibirCredencial(resp) {
   const c = leerJWT(resp.credential);
   if (!c) return pintarAcceso('No se pudo leer la credencial de Google.');
-  if (String(c.hd || '').toLowerCase() !== S.auth.dominio) {
-    try { google.accounts.id.disableAutoSelect(); } catch (e) {}
-    if (resolverRenovacion) { const r = resolverRenovacion; resolverRenovacion = null; r(false); }
-    return pintarAcceso(`${c.email} no es una cuenta corporativa. Ingresa con tu correo @${S.auth.dominio}.`);
-  }
+  // Quién entra lo decide el servidor con la hoja ACCESOS (dominios y correos individuales).
   S.cred = resp.credential; S.claims = c; localStorage.setItem(LS.cred, resp.credential);
   if (resolverRenovacion) { const r = resolverRenovacion; resolverRenovacion = null; r(true); return; }
   cargar();
@@ -426,10 +426,12 @@ function renovarSesion() {
     setTimeout(() => { if (resolverRenovacion === res) { resolverRenovacion = null; res(false); } }, 12000);
   });
 }
+function doms() { return (S.auth && (S.auth.dominios || [S.auth.dominio])) ? (S.auth.dominios || [S.auth.dominio]).filter(Boolean) : []; }
 async function obtenerAuth() {
   const r = await fetch(CONFIG.API_URL + '?ping=1', { redirect: 'follow' });
   const j = await r.json();
-  S.auth = { clientId: j.clientId || '', dominio: String(j.dominio || '').toLowerCase(), empresa: j.empresa || 'Acergal' };
+  S.auth = { clientId: j.clientId || '', dominio: String(j.dominio || '').toLowerCase(), empresa: j.empresa || 'Acergal',
+    dominios: (j.dominios || [j.dominio]).filter(Boolean).map(d => String(d).toLowerCase()), invitados: !!j.invitados };
   localStorage.setItem(LS.auth, JSON.stringify(S.auth));
 }
 
@@ -1089,16 +1091,16 @@ function panelAjustes() {
 /* ============================================================ ACCESO */
 function pintarAcceso(error) {
   const sinServidor = !enGAS && !CONFIG.API_URL;
-  const listo = !sinServidor && !enGAS && S.auth && S.auth.clientId && S.auth.dominio;
+  const listo = !sinServidor && !enGAS && S.auth && S.auth.clientId && (doms().length || S.auth.invitados);
   document.getElementById('raiz').innerHTML = `<main class="acceso">
     <img class="logo-grande" src="icons/logo-acergal.png" alt="Acergal">
     <h1>Mejora continua</h1>
     <p class="lema">Proyectos, avances y cumplimiento del área en un solo lugar.</p>
     ${error ? `<p class="error" role="alert">${esc(error)}</p>` : ''}
-    ${sinServidor ? `<p class="nota-acceso">Esta copia todavía no está conectada a la hoja de Google. Configura API_URL siguiendo la guía de instalación.</p>
+    ${sinServidor ? `<p class="nota-acceso">Esta copia todavía no está conectada a la hoja de Google. Falta el archivo config.js con la dirección del servidor (ver guía de instalación).</p>
         <button class="btn claro" id="lDemo">Ver demostración</button>`
       : listo ? `<div id="gBoton" class="g-boton"></div>
-        <p class="dominio">Acceso exclusivo para cuentas <b>@${esc(S.auth.dominio)}</b></p>` : ''}
+        <p class="dominio">Acceso exclusivo para cuentas autorizadas${doms().length ? ` <b>${doms().map(d => '@' + esc(d)).join(', ')}</b>` : ''}${S.auth.invitados ? ' e invitados' : ''}</p>` : ''}
   </main>`;
   const d = document.getElementById('lDemo');
   if (d) d.onclick = () => { S.demo = true; localStorage.setItem(LS.demo, '1'); cargar(); };
@@ -1122,7 +1124,7 @@ async function arrancar() {
   if (!navigator.onLine && cache && S.cred) { procesar(JSON.parse(cache)); S.offline = true; return render(); }
   try { await obtenerAuth(); }
   catch (e) { if (!S.auth) return pintarAcceso('No se pudo contactar al servidor. Revisa tu conexión.'); }
-  if (!S.auth.clientId || !S.auth.dominio) return pintarAcceso('El administrador debe completar DOMINIO y GOOGLE_CLIENT_ID en la hoja CONFIG.');
+  if (!S.auth.clientId || (!doms().length && !S.auth.invitados)) return pintarAcceso('El administrador debe completar DOMINIO y GOOGLE_CLIENT_ID en la hoja CONFIG.');
   if (sesionValida(120)) return cargar();
   pintarAcceso();
 }
