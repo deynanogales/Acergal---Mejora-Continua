@@ -198,6 +198,7 @@ table.t td.num,table.t th.num{text-align:right;font-variant-numeric:tabular-nums
 .acceso .error{background:rgba(229,72,77,.14);border:1px solid rgba(229,72,77,.4);color:#FFD5D7;border-radius:12px;padding:10px 14px;font-size:14px;max-width:340px;margin:0 0 20px}
 .acceso .nota-acceso{color:var(--texto-osc);font-size:14px;max-width:320px;margin:0 0 18px}
 .acceso .btn.claro{background:#fff;color:var(--navy);border-color:#fff;min-width:240px}
+.version-app{position:absolute;bottom:calc(var(--bot) + 14px);left:0;right:0;font-size:12px;color:#5E7396;text-align:center}
 .pie-acceso{position:absolute;bottom:calc(var(--bot) + 18px);left:0;right:0;font-size:12px;color:#6F84A8}
 .cargando-logo{width:72px;opacity:.9}
 @media (prefers-reduced-motion:no-preference){.cargando-logo{animation:late 1.4s ease-in-out infinite}@keyframes late{50%{opacity:.4;transform:scale(.96)}}}
@@ -329,6 +330,7 @@ window.qrcode = (typeof __qrmod === 'function') ? __qrmod : (__qrmod.default || 
 /* ============================================================ CONFIGURACIÓN
    La dirección del servidor (URL /exec) se lee del archivo config.js, que se crea una sola vez
    y no se reemplaza al actualizar la app. Quién puede entrar se define en la hoja ACCESOS. */
+const APP_VERSION = '9';           // súbelo junto con VERSION en sw.js cada vez que publiques cambios
 const CONFIG = { API_URL: (window.APP_CONFIG && String(window.APP_CONFIG.API_URL || '').trim()) || '' };
 
 /* ============================================================ ESTADO */
@@ -1221,6 +1223,7 @@ function panelAjustes() {
     <div class="bloque"><div class="datos">
       <div><span>Acceso</span>${S.demo ? 'Demostración' : 'Cuenta corporativa de Google'}</div>
       <div><span>Datos al</span>${fLarga(iso(hoyD()))}</div>
+      <div><span>Versión de la app</span>${APP_VERSION}</div>
     </div></div>
     ${enGAS ? '' : `<button class="btn ancho" id="jQR" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:4px"><span style="width:20px;height:20px;display:inline-flex">${I.qr}</span>Compartir el aplicativo con QR</button>`}
     <div class="acciones"><button class="btn pri" id="jAct">Actualizar datos</button>
@@ -1239,6 +1242,7 @@ function pintarAcceso(error) {
     <img class="logo-grande" src="icons/logo-acergal.png" alt="Acergal">
     <h1>Mejora continua</h1>
     <p class="lema">Proyectos, avances y cumplimiento del área en un solo lugar.</p>
+    <p class="version-app">Versión ${APP_VERSION}</p>
     ${error ? `<p class="error" role="alert">${esc(error)}</p>` : ''}
     ${sinServidor ? `<p class="nota-acceso">Esta copia todavía no está conectada a la hoja de Google. Falta el archivo config.js con la dirección del servidor (ver guía de instalación).</p>
         <button class="btn claro" id="lDemo">Ver demostración</button>`
@@ -1370,8 +1374,20 @@ const Demo = (() => {
 })();
 
 /* ============================================================ INICIO */
+// Actualización automática: al publicar una versión nueva en GitHub, la app la detecta y se recarga una vez.
 if ('serviceWorker' in navigator && !enGAS && location.protocol !== 'file:') {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  const habiaVersion = !!navigator.serviceWorker.controller;
+  let recargado = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!habiaVersion || recargado) return;
+    recargado = true;
+    location.reload();
+  });
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
+    .then(reg => {
+      reg.update().catch(() => {});
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+    }).catch(() => {});
 }
 arrancar();
 </script>
