@@ -1,6 +1,6 @@
 /* Service worker: guarda la app para abrirla rápido y sin conexión.
    Cambia VERSION cada vez que publiques cambios en index.html. */
-const VERSION = 'acergal-mc-v8';
+const VERSION = 'acergal-mc-v9';
 const ARCHIVOS = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
   'icons/logo-mark.png', 'icons/logo-acergal.png'];
 
@@ -25,7 +25,7 @@ self.addEventListener('fetch', e => {
     return;
   }
   if (req.mode === 'navigate') {                          // la app: primero red, si falla la copia guardada
-    e.respondWith(fetch(req).then(r => { caches.open(VERSION).then(c => c.put('index.html', r.clone())); return r; })
+    e.respondWith(fetch(req, { cache: 'no-store' }).then(r => { const c = r.clone(); caches.open(VERSION).then(k => k.put('index.html', c)); return r; })
       .catch(() => caches.match('index.html')));
     return;
   }
