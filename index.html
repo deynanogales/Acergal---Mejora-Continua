@@ -215,6 +215,15 @@ table.t td.num,table.t th.num{text-align:right;font-variant-numeric:tabular-nums
 .archivo small{display:block;color:var(--suave);font-size:13px;margin-top:4px}
 .archivo.lleno{border-style:solid;border-color:#00B37E;background:#EEFBF5}
 .archivo.lleno b{color:#00875E}
+.lista-arch{list-style:none;margin:8px 0 0;padding:0}
+.lista-arch li{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--linea);border-radius:10px;padding:8px 10px;margin-top:6px;font-size:14px}
+.lista-arch li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lista-arch li small{color:var(--suave);flex:0 0 auto}
+.lista-arch li button{border:0;background:none;color:var(--suave);font-size:20px;line-height:1;padding:2px 6px;border-radius:6px}
+.lista-arch li button:hover{color:#C3333B;background:#FDECEC}
+.evids{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.evid{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#0372B0;background:#EAF4FC;border-radius:999px;padding:4px 10px;text-decoration:none}
+.evid svg{width:14px;height:14px}
 a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:inherit}
 a.btn.pri{color:#fff}
 .chip-resp{color:#00875E;font-weight:600}
@@ -688,37 +697,53 @@ function toast(t) {
   clearTimeout(toast._t); toast._t = setTimeout(() => el.hidden = true, 3200);
 }
 
-const MAX_MB = 15;
+const MAX_MB = 15, MAX_TOTAL_MB = 20;
 const tam = b => b < 1048576 ? Math.max(1, Math.round(b / 1024)) + ' KB' : (b / 1048576).toFixed(1).replace('.', ',') + ' MB';
-function campoArchivo(id, titulo) {
-  return `<label class="archivo" id="${id}Z"><input type="file" id="${id}" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.zip">
-    <b id="${id}T">${titulo}</b><small id="${id}S">Acta de cierre, informe final o fotos. Máximo ${MAX_MB} MB. Se guarda en Google Drive.</small></label>`;
+const ARCH = {};   // archivos elegidos por cada selector
+function campoArchivo(id, titulo, ayuda) {
+  ARCH[id] = [];
+  return `<label class="archivo" id="${id}Z"><input type="file" id="${id}" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip">
+    <b id="${id}T">${titulo}</b><small id="${id}S">${ayuda || 'Fotos, actas, informes o planillas. Puedes elegir varios. Máximo ' + MAX_MB + ' MB cada uno.'}</small></label>
+    <ul class="lista-arch" id="${id}L"></ul>`;
+}
+function pintarArchivos(id) {
+  const l = ARCH[id], z = document.getElementById(id + 'Z'), ul = document.getElementById(id + 'L');
+  const total = l.reduce((s, f) => s + f.size, 0);
+  z.classList.toggle('lleno', l.length > 0);
+  document.getElementById(id + 'T').textContent = l.length ? `${l.length} ${l.length === 1 ? 'archivo listo' : 'archivos listos'} · ${tam(total)}` : 'Adjuntar evidencias';
+  document.getElementById(id + 'S').textContent = l.length ? 'Toca aquí para agregar más.' : `Fotos, actas, informes o planillas. Máximo ${MAX_MB} MB cada uno.`;
+  ul.innerHTML = l.map((f, i) => `<li><span>${esc(f.name)}</span><small>${tam(f.size)}</small><button type="button" data-i="${i}" aria-label="Quitar ${esc(f.name)}">×</button></li>`).join('');
+  ul.querySelectorAll('button').forEach(b => b.onclick = () => { l.splice(+b.dataset.i, 1); pintarArchivos(id); });
 }
 function activarArchivo(id) {
   const inp = document.getElementById(id);
   inp.onchange = () => {
-    const f = inp.files[0], z = document.getElementById(id + 'Z');
-    if (!f) return;
-    if (f.size > MAX_MB * 1048576) {
-      inp.value = ''; z.classList.remove('lleno');
-      document.getElementById(id + 'T').textContent = 'Archivo demasiado grande';
-      document.getElementById(id + 'S').textContent = `Pesa ${tam(f.size)} y el máximo es ${MAX_MB} MB. Comprímelo o divídelo.`;
-      return;
-    }
-    z.classList.add('lleno');
-    document.getElementById(id + 'T').textContent = f.name;
-    document.getElementById(id + 'S').textContent = `${tam(f.size)} · listo para subir. Toca para cambiarlo.`;
+    const l = ARCH[id], avisos = [];
+    [...inp.files].forEach(f => {
+      if (f.size > MAX_MB * 1048576) { avisos.push(`"${f.name}" pesa ${tam(f.size)} (máximo ${MAX_MB} MB).`); return; }
+      if (l.some(x => x.name === f.name && x.size === f.size)) return;
+      if (l.reduce((s, x) => s + x.size, 0) + f.size > MAX_TOTAL_MB * 1048576) { avisos.push(`"${f.name}" no entra: el total por avance es ${MAX_TOTAL_MB} MB.`); return; }
+      l.push(f);
+    });
+    inp.value = '';                     // permite volver a elegir (por ejemplo, otra foto con la cámara)
+    pintarArchivos(id);
+    if (avisos.length) toast(avisos.join(' '));
   };
+  pintarArchivos(id);
 }
-function leerArchivo(id) {
-  const f = document.getElementById(id) && document.getElementById(id).files[0];
-  if (!f) return Promise.resolve(null);
-  return new Promise((res, rej) => {
+function leerArchivos(id) {
+  return Promise.all((ARCH[id] || []).map(f => new Promise((res, rej) => {
     const r = new FileReader();
     r.onload = () => res({ nombre: f.name, tipo: f.type || 'application/octet-stream', base64: String(r.result).split(',')[1] });
-    r.onerror = () => rej(new Error('No se pudo leer el archivo.'));
+    r.onerror = () => rej(new Error('No se pudo leer ' + f.name));
     r.readAsDataURL(f);
-  });
+  })));
+}
+function enlacesEvidencia(txt) {
+  const l = String(txt || '').split(/\s*\n\s*|\s+\|\s+/).filter(u => /^https?:\/\//.test(u));
+  if (!l.length) return '';
+  const ic = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.5 12.6 21a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8"/></svg>';
+  return `<div class="evids">${l.map((u, i) => `<a class="evid" href="${esc(u)}" target="_blank" rel="noopener">${ic}${l.length === 1 ? 'Ver evidencia' : 'Evidencia ' + (i + 1)}</a>`).join('')}</div>`;
 }
 
 async function enviar(btn, fn, textoEspera) {
@@ -764,9 +789,12 @@ async function detalle(id) {
       <div><span>Cierre real</span>${p.FechaCierre ? fLarga(p.FechaCierre) : '—'}</div>
       <div><span>Desvío</span>${desv > 0 ? plural(desv, 'día') + ' de atraso' : desv < 0 ? plural(-desv, 'día') + ' antes' : 'Sin desvío'}</div>
     </div></div>
+    ${abierto && p.Respaldo ? `<div class="bloque"><h3>Evidencias del proyecto</h3>
+      <p class="resumen-h" style="margin:0 0 12px">Todas las evidencias de los avances están en una carpeta de Google Drive. Cada una también aparece en el historial, junto al avance en que se subió.</p>
+      <a class="btn" href="${esc(p.Respaldo)}" target="_blank" rel="noopener">Ver carpeta de evidencias</a></div>` : ''}
     ${p.FechaCierre && p.Estado !== 'Cancelado' ? `<div class="bloque"><h3>Respaldo del proyecto</h3>
-      ${p.Respaldo ? `<p class="resumen-h" style="margin:0 0 12px">Los archivos de cierre están guardados en Google Drive.</p>
-        <div class="acciones" style="margin:0"><a class="btn pri" href="${esc(p.Respaldo)}" target="_blank" rel="noopener">Ver archivos de respaldo</a><button class="btn" id="dResp">Adjuntar otro archivo</button></div>`
+      ${p.Respaldo ? `<p class="resumen-h" style="margin:0 0 12px">Las evidencias y los archivos de cierre están guardados en Google Drive.</p>
+        <div class="acciones" style="margin:0"><a class="btn pri" href="${esc(p.Respaldo)}" target="_blank" rel="noopener">Ver archivos de respaldo</a><button class="btn" id="dResp">Adjuntar más archivos</button></div>`
       : `<p class="resumen-h" style="margin:0 0 12px">Este proyecto todavía no tiene archivo de respaldo.</p><button class="btn pri" id="dResp">Adjuntar respaldo</button>`}
     </div>` : ''}
     ${abierto ? `<div class="acciones">
@@ -781,7 +809,7 @@ async function detalle(id) {
           <div class="lt-cab"><b>${esc(h.tipo)}${h.tipo === 'Avance' || h.tipo === 'Cierre' ? ` · ${h.avance}%` : ''}</b><span>${fLarga(h.fecha)}</span></div>
           ${h.comentario ? `<p>${esc(h.comentario)}</p>` : ''}
           ${h.valor !== '' && h.valor !== undefined && h.valor !== null && (h.tipo === 'Avance' || h.tipo === 'Cierre') ? `<div class="lt-cab">Indicador: ${num(h.valor)}</div>` : ''}
-          ${h.evidencia ? `<a href="${esc(h.evidencia)}" target="_blank" rel="noopener">Ver evidencia</a>` : ''}
+          ${enlacesEvidencia(h.evidencia)}
         </li>`).join('')}</ol>` : '<p class="resumen-h">Sin registros todavía.</p>'}
     </div>`;
   abrirPanel(esc(p.Proyecto), `${esc(p.ID)} · ${esc(p.Area)}`, cuerpo);
@@ -857,13 +885,10 @@ function formAvance(id) {
       <div class="campo"><label for="aR">Avance del proyecto</label>
         <div class="rango"><input id="aR" type="range" min="0" max="100" step="5"><output id="aO"></output></div>
         <small id="aAnt"></small></div>
-      <div id="aCierre" hidden>
-        <div class="nota">Con 100% el proyecto se cierra con fecha de hoy y se avisa a tu gerente.</div>
-        <div class="campo"><label>Archivo de respaldo del cierre</label>${campoArchivo('aF', 'Adjuntar archivo de respaldo')}</div>
-      </div>
+      <div id="aCierre" class="nota" hidden>Con 100% el proyecto se cierra con fecha de hoy y se avisa a tu gerente. Adjunta abajo el acta o el informe final.</div>
       <div class="campo"><label for="aV" id="aVl">Valor actual del indicador</label><input id="aV" type="number" step="any" inputmode="decimal"><small id="aVs"></small></div>
       <div class="campo"><label for="aC">Qué hiciste</label><textarea id="aC" required placeholder="Ej. Reubicación de 120 SKUs clase A cerca de despacho"></textarea></div>
-      <div class="campo"><label for="aE">Enlace a evidencia (opcional)</label><input id="aE" type="url" placeholder="Foto, acta o archivo en Drive"></div>
+      <div class="campo"><label id="aFl">Evidencias de este avance (opcional)</label>${campoArchivo('aF', 'Adjuntar evidencias')}</div>
       <button class="btn pri" type="submit" style="width:100%" id="aBtn">Guardar avance</button>
     </form>`);
   const f = document.getElementById('fA'), r = document.getElementById('aR'), o = document.getElementById('aO');
@@ -871,6 +896,7 @@ function formAvance(id) {
     const p = S.data.proyectos.find(x => x.ID === document.getElementById('aP').value);
     o.textContent = r.value + '%';
     document.getElementById('aCierre').hidden = r.value !== '100';
+    document.getElementById('aFl').textContent = r.value === '100' ? 'Respaldo del cierre: acta, informe final o fotos' : 'Evidencias de este avance (opcional)';
     document.getElementById('aBtn').textContent = r.value === '100' ? 'Guardar y cerrar proyecto' : 'Guardar avance';
     return p;
   };
@@ -890,27 +916,28 @@ function formAvance(id) {
   f.onsubmit = e => {
     e.preventDefault();
     const id = document.getElementById('aP').value;
-    const d = { id, avance: +r.value, valor: document.getElementById('aV').value, comentario: document.getElementById('aC').value.trim(), evidencia: document.getElementById('aE').value.trim() };
-    const conArchivo = d.avance === 100 && document.getElementById('aF').files[0];
+    const d = { id, avance: +r.value, valor: document.getElementById('aV').value, comentario: document.getElementById('aC').value.trim() };
+    const nArch = ARCH.aF.length;
     enviar(document.getElementById('aBtn'), async () => {
       if (!d.comentario) throw new Error('Describe qué hiciste: es el respaldo de tu trabajo.');
-      if (d.avance === 100) d.archivo = await leerArchivo('aF');
+      if (nArch) d.archivos = await leerArchivos('aF');
       const res = await api('avance', d);
       actualizarProyecto(res);
       const mk = mesDe(iso(hoyD())); S.data.registrosPorMes = S.data.registrosPorMes || {};
       S.data.registrosPorMes[mk] = (S.data.registrosPorMes[mk] || 0) + 1;
-      toast(res.FechaCierre ? `Proyecto cerrado: ${res.Estado.toLowerCase()}${d.archivo ? '. Respaldo guardado en Drive' : ''}` : 'Avance registrado');
+      const txtArch = nArch ? ` con ${nArch} ${nArch === 1 ? 'evidencia' : 'evidencias'} en Drive` : '';
+      toast(res.FechaCierre ? `Proyecto cerrado: ${res.Estado.toLowerCase()}${txtArch}` : `Avance registrado${txtArch}`);
       cerrarPanel(); render();
-    }, conArchivo ? 'Subiendo respaldo…' : 'Guardando…');
+    }, nArch ? `Subiendo ${nArch} ${nArch === 1 ? 'archivo' : 'archivos'}…` : 'Guardando…');
   };
 }
 
 function formRespaldo(p) {
   abrirPanel('Adjuntar respaldo', esc(p.Proyecto), `
     <form id="fR" novalidate><p class="error" hidden></p>
-      <div class="campo">${campoArchivo('rF', 'Elegir archivo')}</div>
+      <div class="campo">${campoArchivo('rF', 'Adjuntar evidencias')}</div>
       <div class="campo"><label for="rC">Descripción (opcional)</label><input id="rC" placeholder="Ej. Acta firmada por el jefe de Almacén"></div>
-      <p class="resumen-h">El archivo se guarda en la carpeta del proyecto en Google Drive. En la hoja solo queda el enlace.</p>
+      <p class="resumen-h">Los archivos se guardan en la carpeta del proyecto en Google Drive. En la hoja solo queda el enlace.</p>
       <button class="btn pri ancho" type="submit">Subir respaldo</button>
     </form>`);
   activarArchivo('rF');
@@ -918,10 +945,10 @@ function formRespaldo(p) {
   f.onsubmit = e => {
     e.preventDefault();
     enviar(f.querySelector('[type=submit]'), async () => {
-      const archivo = await leerArchivo('rF');
-      if (!archivo) throw new Error('Elige un archivo.');
-      const r = await api('respaldo', { id: p.ID, archivo, comentario: document.getElementById('rC').value.trim() });
-      actualizarProyecto(r); toast('Respaldo guardado en Drive');
+      if (!ARCH.rF.length) throw new Error('Elige al menos un archivo.');
+      const archivos = await leerArchivos('rF');
+      const r = await api('respaldo', { id: p.ID, archivos, comentario: document.getElementById('rC').value.trim() });
+      actualizarProyecto(r); toast(archivos.length === 1 ? 'Archivo guardado en Drive' : archivos.length + ' archivos guardados en Drive');
       alCerrarPanel = () => detalle(p.ID); cerrarPanel(); render();
     }, 'Subiendo…');
   };
@@ -1324,8 +1351,10 @@ const Demo = (() => {
     }
     if (a === 'avance') {
       const p = buscar(d.id); p.Avance = d.avance; if (d.valor !== '') p.ValorActual = +d.valor; p.UltimoRegistro = iso(hoyD());
-      if (d.avance === 100) { p.FechaCierre = iso(hoyD()); if (p.Estado === 'En pausa') p.Estado = ''; if (d.archivo) p.Respaldo = 'https://drive.google.com/'; }
-      reg(p.ID, d.avance === 100 ? 'Cierre' : 'Avance', d.avance, p.ValorActual, d.comentario, d.evidencia); return est(p);
+      const ev = (d.archivos || []).map(() => 'https://drive.google.com/').join('\n');
+      if (ev) p.Respaldo = 'https://drive.google.com/';
+      if (d.avance === 100) { p.FechaCierre = iso(hoyD()); if (p.Estado === 'En pausa') p.Estado = ''; }
+      reg(p.ID, d.avance === 100 ? 'Cierre' : 'Avance', d.avance, p.ValorActual, d.comentario, ev); return est(p);
     }
     if (a === 'estado') {
       const p = buscar(d.id), antes = calcEstado(p);
@@ -1334,7 +1363,7 @@ const Demo = (() => {
     }
     if (a === 'enviarReporte') return { mes: d.mes, enviadoA: 'gerente@acergal.com (demostración, no se envió)', url: '' };
     if (a === 'informePdf') return { mes: d.mes, url: '' };
-    if (a === 'respaldo') { const p = buscar(d.id); p.Respaldo = 'https://drive.google.com/'; reg(p.ID, 'Respaldo', p.Avance, '', 'Archivo adjunto: ' + d.archivo.nombre + ' (demostración: no se subió)'); return est(p); }
+    if (a === 'respaldo') { const p = buscar(d.id); p.Respaldo = 'https://drive.google.com/'; reg(p.ID, 'Respaldo', p.Avance, '', 'Archivos adjuntos: ' + d.archivos.map(x => x.nombre).join(', ') + ' (demostración: no se subieron)', d.archivos.map(() => 'https://drive.google.com/').join('\n')); return est(p); }
     throw new Error('Acción no disponible');
   };
   return { api };
